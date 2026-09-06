@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Que ningún buscador la liste. A propósito NO hay un robots.txt que
+     bloquee la entrada: si le prohibís pasar, Google no puede leer este
+     noindex y la página igual podría terminar apareciendo. Dejarlo entrar
+     para que lea "no me indexes" es la forma que de verdad funciona. -->
+<meta name="robots" content="noindex, nofollow">
+
+<!-- Para que al mandarle el link por WhatsApp aparezca la tarjetita linda -->
+<meta name="description" content="Hice esta página para inmortalizar lo que siento por vos.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Nuestro 10 de marzo">
+<meta property="og:description" content="Hice esta página para inmortalizar lo que siento por vos.">
+<meta property="og:image" content="https://nachoinga.github.io/nosotros/fotos/primera.jpeg">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128151;</text></svg>">
+</head>
+<body>
+<!--ARTIFACT-INICIO-->
+<title>Nuestro 10 de marzo</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+
+<script>
+/* ═════════════════════════════════════════════════════════════════════
+   ACÁ SE EDITA TODO. No hace falta tocar nada más abajo.
+
+   · Cambiá los textos entre comillas.
+   · Los ítems con  pendiente: true  se ven en gris punteado mientras
+     estés en modo borrador, y DESAPARECEN cuando lo apagues.
+     Cuando completes uno, borrale la línea  pendiente: true,
+   · Cuando ya esté todo listo, poné  modoBorrador: false  (abajo de todo)
+     y recién ahí mandale el link.
+   ═══════════════════════════════════════════════════════════════════ */
+
+const CONFIG = {
+
+  /* ── 1. LO BÁSICO ───────────────────────────────────────────────── */
+
+  // Poné los dos nombres. Si los dejás vacíos, no se muestran.
+  nombres: { ella: "Florencia", yo: "Ignacio" },
+
+  // El momento exacto en que arrancaron a hablar.
+  // Formato: "AAAA-MM-DDTHH:MM:SS". Si te acordás la hora, cambiala.
+  inicio: "2026-03-10T00:00:00",
+
+  // Frase chiquita arriba de todo.
+  epigrafe: "Todo empezó en el UPD",
+
+  // Bajada del héroe.
+  bajada: "Despues del UPD busqué una excusa para hablarte y fue la mejor decisión de mi vida ese mensaje. Sos lo mejor que me pasó y no hay un solo dia que no sea perfecto con vos. Te amo con mi corazoncito",
+
+
+  /* ── 2. NUESTRA HISTORIA (la línea de tiempo) ───────────────────── */
+  // Agregá todos los momentos que quieras, en orden.
+  // fecha: "AAAA-MM-DD"
+
+  historia: [
+    {
+      fecha: "2026-03-10",
+      titulo: "El primer mensaje",
+      texto: "El día que nos arrancamos a hablar. Con esas fotos que les saqué a vos y a las chicas y aproveché a hablarte para pasartelas, desde ese dia supe que queria estar con vos e iba a hacer hasta lo imposible para lograrlo"
+    },
+    {
+      fecha: "2026-03-11",
+      titulo: "El famoso chico que resuelve",
+      texto: "Acá me di cuenta que habia algo cuando deje de ser Nacho a chico que resuelve y te di la mitad de mi transportador.",
+    },
+    {
+      fecha: "2026-03-17",
+      titulo: "Nuestra primera llamada",
+      texto: "La primera llamada que hicimos porque no nos pudimos juntar de lo nublado que estaba ese día.",
+    },
+    {
+      fecha: "2026-03-18",
+      titulo: "La primera vez que nos juntamos",
+      texto: "No son explicables los nervios que tenía ese día que fuimos al parque sur y te espere en los carrys. Verte de lejos llegar me dejó claro que eras la chica de mis sueños, con tu belleza y sonrisa mirandome, hicieron que me enamore mas de lo que ya estaba",
+    },
+    {
+      fecha: "2026-03-18",
+      titulo: "El primer “te quiero”",
+      texto: "Ese te quiero de buenas noches que me animé a decir y se siguió todos los dias y despues pasó a un te amo. El habertelo mandado y que me digas yo mass me derritió el corazón y ese dia fui a domrir como un nene chiquito feliz y enamorado porque encontró a quien tanto buscó",
+    },
+    {
+      fecha: "2026-03-27",
+      titulo: "Mi cupleaños y tu regalo",
+      texto: "Cuando me fuiste a mí cumpleaños, me dí cuenta de lo hermoso que es que alguien que amas esté ahi y ví la falta que me hacias todos estos años, sos la persona que mas amo y voy a amar. La remra que me regalaste siempre encuentro la ocasión para usarla, porque me encanta y no es una simple remera, es un regalo de la mujer que amo y me hace feliz.", 
+    },
+    {
+      titulo: "El retiro",
+      texto: "Ese retiro de la escuela donde nos reiamos mucho y no me olvido más" 
+    },
+    {
+      fecha: "2026-07-10",
+      titulo: "El día que nos quedó claro",
+      texto: "Esa noche en Bariloche hermosa, el principio de los te amo y de saber que estaba con la mujer de mis sueños con la que quiero mi futuro entero. Tampoco me olvido de tu tos por el vape.",
+    },
+    {
+      fecha: "2026-08-10",
+      titulo: "Tu cumpleaños",
+      texto: "Esa fecha que esperé desde el día que nos arrancabamos a hablar, porque queria devolverte todo lo que me diste en los anteriores meses y la alegria y amor que me diste. Planear tu regalo, hacerlo y dartelo fue hermoso y verte con los ojos llorosos de felicidad es un recuerdo que lo tengo todos los dias, esa carita hermosa la pienso todos los dias y es lo que me hace ser cada vez mejor, te mereces todo y mas mi amor.",
+    }
+  ],
+
+  // ── Cosas sueltas ───────────────────────────────────────────────
+  // Momentos de una línea, sin fecha. Para todo lo que no da para un
+  // bloque entero pero igual querés que esté. Agregá los que quieras:
+  // la lista no tiene límite, copiá y pegá una línea más.
+
+  sueltos: [
+    { texto: "Cuando me diste el scrapbook que me marcó el corazón." },
+    { texto: "El pegarme cada que hay algo amarillo."},
+    { texto: "Cuando jugamos roblox juntos."},
+    { texto: "Cuando viniste por primera vez a mi casa."},
+    { texto: "El conocer a tus papás."},
+    { texto: "El proyectar con vos a futuro."},
+    { texto: "Nuestros chistes internos que nadie entiende.", },
+    { texto: "Las charlas nocturnas de todos los dias.",  }
+  ],
+
+  // ── EL TRAMO ABIERTO ────────────────────────────────────────────
+  // Este bloque cierra la línea de tiempo y no tiene fecha de final:
+  // va desde "desde" hasta HOY, y los días se cuentan solos.
+  // Sirve para decir "pasaron un montón de cosas más" sin explicarlas
+  // una por una. Cambiá "desde" por la fecha en que quedó todo claro.
+
+  cierre: {
+    desde: "2026-03-18",
+    titulo: "Y de ahí en adelante, todo",
+    texto: "Desde ese día pasaron demasiadas cosas para escribirlas acá una por una. Charlas que no terminaban, cosas que aprendimos de la otra persona sin darnos cuenta, y muchas cosas mas que vivimos juntos que si las pongo termina siendo una enciclopedia. Todas están todas adentro de este número."
+  },
+
+
+  /* ── 3. COSAS TUYAS (razones, detalles, manías que amás) ────────── */
+
+  motivos: [
+    { texto: "Cuando me hablas chiquitito y me tocas los cachetes." },
+    { texto: "Tus dramas y planteos que me haces."},
+    { texto: "Como decís estupido." },
+    { texto: "Tu risa contagiosa que me enamoró desde el primer dia y me da vida."},
+    { texto: "El que siempre estes cuando lo necesito." },
+    { texto: "Esos cachetitos que tenes que me enamoran a kilometros." }
+  ],
+
+
+  /* ── 4. MOMENTOS (fotos) ────────────────────────────────────────── */
+  // Meté las imágenes en la carpeta  fotos/  al lado de este archivo
+  // y poné el nombre acá abajo, por ejemplo:  src: "fotos/playa.jpg"
+
+  momentos: [
+    { src: "fotos/primera.jpeg", pie: "Nuestra primera foto juntos" },
+    { src: "fotos/viaje.jpeg", pie: "Ese viaje que no queríamos que termine" },
+    { src: "fotos/favorita.jpeg", pie: "Mi foto favorita"},
+    { src: "fotos/salida.jpeg", pie: "La primera salida a comer que tuvimos"},
+    { src: "fotos/brc.jpeg", pie: "La noche de bypass y lo que pasó ahí" },
+    { src: "fotos/nieve.jpeg", pie: "La foto que no te gustó pero esta re linda" },
+
+
+  ],
+
+
+  /* ── 5. COSAS PARA HACER JUNTOS ─────────────────────────────────── */
+  // hecho: true  →  aparece tachadito y con la fecha.
+
+  planes: [
+    { texto: "Un viaje", hecho: true,  },
+    { texto: "Cocinar algo juntos", hecho: false},
+    { texto: "Ver una serie juntos en una casa", hecho: false },
+    { texto: "Vivir juntitos", hecho: false,},
+    { texto: "Conocer a toda tu family", hecho: false},
+    { texto: "Llegar al año", hecho: false}
+  ],
+
+
+  /* ── 6. EL CIERRE ───────────────────────────────────────────────── */
+  // Lo último que lee. Corto: una frase fuerte, una aclaración y la firma.
+  // No es una carta, es el sello del final.
+
+  final: {
+    frase: "Hice esta página para inmortalizar lo que siento por vos.",
+    texto: "Desde acá hasta el final, cada vez que la abras el número de arriba va a ser más grande. Esto es una parte de lo inmenso que es mi amor hacia vos.",
+    firma: "Con todo mi amor, tu Cosota"
+  },
+
+
+  /* ── 7. MODO BORRADOR ───────────────────────────────────────────── */
+  // true  → ves los pendientes y el panel que te dice qué falta.
+  // false → se esconde todo lo que quedó sin completar. Ponelo en false
+  //         antes de pasarle la página.
+
+  modoBorrador: false
+};
+</script>
+
+<style>
+/* ═══ RESET ═══════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none !important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+
+/* ═══ TOKENS ══════════════════════════════════════════════════════ */
+:root{
+  color-scheme:light;
+
+  --ground:#FFF7F9;
+  --panel:#FBE9EF;
+  --surface:#FFFFFF;
+  --linea:#EFD3DE;
+  --linea-fuerte:#E0B9C9;
+
+  --tinta:#38202B;
+  --tinta-2:#7B5765;
+
+  --rosa-claro:#F5B8CD;
+  --rosa-suave:#FCE3EB;
+  --rosa-hondo:#B02A5B;
+  --rosa-fuerte:#8C1E48;
+  --sobre-hondo:#FFF6F9;
+
+  --sombra:0 1px 1px rgba(56,32,43,.04), 0 14px 34px -22px rgba(56,32,43,.5);
+
+  --display:"Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --texto:"Karla", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mano:"Caveat", "Segoe Script", cursive;
+
+  --col:64rem;
+  --lectura:60ch;
+  --aire:clamp(3.75rem, 8vw, 6.75rem);
+}
+
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#150B10;
+    --panel:#1E1118;
+    --surface:#26151E;
+    --linea:#3A1F29;
+    --linea-fuerte:#4F2B38;
+    --tinta:#FBEDF3;
+    --tinta-2:#C7A1B1;
+    --rosa-claro:#F6BED3;
+    --rosa-suave:#311A24;
+    --rosa-hondo:#FF85AC;
+    --rosa-fuerte:#FFAAC5;
+    --sobre-hondo:#25101A;
+    --sombra:0 1px 1px rgba(0,0,0,.5), 0 16px 40px -24px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#150B10;
+  --panel:#1E1118;
+  --surface:#26151E;
+  --linea:#3A1F29;
+  --linea-fuerte:#4F2B38;
+  --tinta:#FBEDF3;
+  --tinta-2:#C7A1B1;
+  --rosa-claro:#F6BED3;
+  --rosa-suave:#311A24;
+  --rosa-hondo:#FF85AC;
+  --rosa-fuerte:#FFAAC5;
+  --sobre-hondo:#25101A;
+  --sombra:0 1px 1px rgba(0,0,0,.5), 0 16px 40px -24px rgba(0,0,0,.9);
+}
+
+/* ═══ BASE ════════════════════════════════════════════════════════ */
+html{scroll-behavior:smooth}
+body{
+  background:var(--ground);
+  color:var(--tinta);
+  font-family:var(--texto);
+  font-size:1.0625rem;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+:focus-visible{outline:2px solid var(--rosa-hondo);outline-offset:3px;border-radius:2px}
+
+p{margin:0}
+h1,h2,h3{margin:0;font-weight:400;text-wrap:balance}
+
+.envoltura{width:100%;max-width:var(--col);margin-inline:auto;padding-inline:clamp(1.25rem,5vw,2.5rem)}
+
+section{padding-block:var(--aire);scroll-margin-top:5rem}
+.franja{background:var(--panel)}
+
+/* ═══ ENCABEZADOS DE SECCIÓN ══════════════════════════════════════ */
+.rotulo{
+  font-family:var(--texto);
+  font-size:.6875rem;
+  font-weight:700;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--rosa-hondo);
+  margin-bottom:.9rem;
+}
+.titulo{
+  font-family:var(--display);
+  font-size:clamp(2rem,5vw,3rem);
+  line-height:1.06;
+  font-weight:400;
+  letter-spacing:-.01em;
+}
+.titulo em{font-style:italic;color:var(--rosa-hondo)}
+.entrada{
+  max-width:var(--lectura);
+  margin-top:1.1rem;
+  color:var(--tinta-2);
+}
+.cabecera-seccion{margin-bottom:clamp(2.25rem,5vw,3.25rem)}
+
+/* ═══ BARRA SUPERIOR ══════════════════════════════════════════════ */
+.barra{
+  position:sticky;top:0;z-index:40;
+  background:color-mix(in srgb, var(--ground) 86%, transparent);
+  backdrop-filter:blur(12px) saturate(140%);
+  border-bottom:1px solid var(--linea);
+}
+.barra-fila{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  height:3.4rem;
+}
+.barra-marca{
+  display:flex;align-items:center;gap:.55rem;
+  font-family:var(--display);font-size:1.0625rem;
+  white-space:nowrap;
+}
+.barra-marca b{
+  font-family:var(--texto);font-size:.8125rem;font-weight:700;
+  font-variant-numeric:tabular-nums;
+  color:var(--rosa-hondo);
+}
+.barra-nav{display:flex;gap:1.4rem}
+.barra-nav a{
+  font-size:.8125rem;font-weight:500;text-decoration:none;color:var(--tinta-2);
+  padding-block:.35rem;border-bottom:1.5px solid transparent;
+  transition:color .18s, border-color .18s;
+}
+.barra-nav a:hover{color:var(--rosa-hondo);border-bottom-color:var(--rosa-claro)}
+@media (max-width:760px){.barra-nav{display:none}}
+
+/* ═══ HÉROE ═══════════════════════════════════════════════════════ */
+.heroe{
+  position:relative;overflow:hidden;
+  padding-block:clamp(3.5rem,9vw,6rem) clamp(2.5rem,6vw,4rem);
+  background:
+    radial-gradient(120% 90% at 12% -10%, var(--rosa-suave) 0%, transparent 62%),
+    radial-gradient(90% 70% at 92% 4%, color-mix(in srgb, var(--rosa-claro) 34%, transparent) 0%, transparent 58%);
+}
+#petalos{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.heroe > .envoltura{position:relative;z-index:1}
+
+.heroe-epigrafe{
+  font-family:var(--mano);
+  font-size:clamp(1.35rem,3.4vw,1.75rem);
+  color:var(--rosa-hondo);
+  line-height:1;
+}
+.heroe h1{
+  font-family:var(--display);
+  font-size:clamp(3rem,10vw,6.25rem);
+  line-height:.94;
+  letter-spacing:-.025em;
+  font-weight:300;
+  margin-top:.5rem;
+}
+.heroe h1 em{font-style:italic;color:var(--rosa-hondo);font-weight:400}
+.heroe-nombres{
+  font-family:var(--display);
+  font-style:italic;
+  font-size:clamp(1.25rem,3.2vw,1.75rem);
+  color:var(--tinta-2);
+  margin-top:.85rem;
+}
+.heroe-bajada{
+  max-width:46ch;margin-top:1.5rem;color:var(--tinta-2);
+  font-size:1.0625rem;
+}
+.chapa{
+  display:inline-flex;align-items:center;gap:.6rem;
+  margin-top:2rem;padding:.5rem 1.05rem .55rem;
+  border:1px solid var(--linea-fuerte);
+  border-radius:100px;
+  background:var(--surface);
+  font-size:.8125rem;font-weight:600;letter-spacing:.01em;
+  color:var(--rosa-fuerte);
+  box-shadow:var(--sombra);
+}
+.chapa .punto{
+  width:.45rem;height:.45rem;border-radius:50%;
+  background:var(--rosa-hondo);flex:none;
+}
+.chapa.hoy{background:var(--rosa-hondo);color:var(--sobre-hondo);border-color:transparent}
+.chapa.hoy .punto{background:var(--sobre-hondo)}
+
+/* ═══ CONTADOR ════════════════════════════════════════════════════ */
+.contador-caja{text-align:center}
+.contador-desde{
+  font-family:var(--texto);font-size:.6875rem;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-2);
+}
+.numerote{
+  font-family:var(--display);
+  font-weight:300;
+  font-size:clamp(3.25rem,15vw,8.5rem);
+  line-height:1;
+  letter-spacing:-.02em;
+  margin-top:1rem;
+  color:var(--tinta);
+  display:flex;align-items:baseline;justify-content:center;
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.dig{display:inline-block;width:.6em;text-align:center}
+.sep{display:inline-block}
+.frac{
+  font-size:.34em;color:var(--rosa-hondo);opacity:.62;
+  letter-spacing:-.01em;margin-left:.06em;
+}
+.unidad-nombre{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.35rem,4vw,2.1rem);
+  color:var(--rosa-hondo);
+  margin-top:.35rem;
+}
+.selector{
+  display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;
+  margin-top:2rem;
+}
+.selector button{
+  padding:.42rem 1rem .48rem;
+  border:1px solid var(--linea-fuerte);
+  border-radius:100px;
+  background:var(--surface);
+  font-size:.8125rem;font-weight:600;
+  color:var(--tinta-2);
+  transition:background .16s, color .16s, border-color .16s;
+}
+.selector button:hover{border-color:var(--rosa-claro);color:var(--rosa-hondo)}
+.selector button[aria-pressed="true"]{
+  background:var(--rosa-hondo);
+  border-color:var(--rosa-hondo);
+  color:var(--sobre-hondo);
+}
+.desglose{
+  margin-top:1.75rem;
+  font-size:.9375rem;color:var(--tinta-2);
+  font-variant-numeric:tabular-nums;
+}
+.desglose b{color:var(--tinta);font-weight:600}
+
+/* ═══ CINTA MÉTRICA ═══════════════════════════════════════════════ */
+.cinta-marco{
+  margin-top:clamp(3rem,7vw,4.5rem);
+  border-top:1px solid var(--linea);
+  padding-top:2.25rem;
+}
+.cinta-titulo{
+  font-family:var(--texto);font-size:.6875rem;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--tinta-2);
+  text-align:center;margin-bottom:1.5rem;
+}
+.cinta-scroll{overflow-x:auto;padding-bottom:.5rem;scrollbar-width:thin}
+.cinta{height:6.5rem;min-width:100%;padding-inline:2.75rem}
+.cinta-pista{position:relative;height:100%}
+.cinta-linea{
+  position:absolute;left:0;right:0;top:2.6rem;height:1px;background:var(--linea-fuerte);
+}
+.cinta-tramo{
+  position:absolute;top:2.6rem;left:0;height:3px;margin-top:-1px;
+  background:var(--rosa-claro);border-radius:2px;
+}
+.marca{position:absolute;top:0;transform:translateX(-50%);text-align:center;width:5rem}
+.marca .palito{
+  width:1px;height:.85rem;background:var(--linea-fuerte);
+  margin:1.75rem auto 0;
+}
+.marca.grande .palito{height:1.35rem;width:1.5px;background:var(--rosa-hondo);margin-top:1.25rem}
+.marca .fecha{
+  font-size:.6875rem;font-weight:600;color:var(--tinta-2);
+  margin-top:.45rem;letter-spacing:.02em;
+}
+.marca.grande .fecha{color:var(--rosa-hondo)}
+.marca .hito{
+  font-family:var(--display);font-style:italic;font-size:.9375rem;
+  color:var(--rosa-hondo);margin-top:.05rem;
+}
+.aguja{
+  position:absolute;top:1.1rem;bottom:2.1rem;width:2px;
+  background:var(--rosa-hondo);transform:translateX(-50%);
+  border-radius:2px;
+}
+.aguja::before{
+  content:"";position:absolute;top:-.55rem;left:50%;
+  width:.7rem;height:.7rem;margin-left:-.35rem;
+  background:var(--rosa-hondo);
+  transform:rotate(45deg);
+  border-radius:1px;
+}
+.aguja span{
+  position:absolute;bottom:-1.85rem;left:50%;transform:translateX(-50%);
+  white-space:nowrap;
+  font-size:.6875rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--rosa-hondo);
+}
+
+/* ═══ PRÓXIMO HITO ════════════════════════════════════════════════ */
+.cuenta-atras{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:.75rem;max-width:34rem;margin-top:2rem;
+}
+.casilla{
+  background:var(--surface);
+  border:1px solid var(--linea);
+  border-radius:3px;
+  padding:1.1rem .5rem 1rem;
+  text-align:center;
+}
+.casilla .n{
+  font-family:var(--display);font-size:clamp(1.75rem,5vw,2.6rem);
+  line-height:1;font-weight:400;
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.casilla .u{
+  font-size:.625rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tinta-2);margin-top:.5rem;
+}
+.hito-listo{
+  margin-top:2rem;padding:1.75rem 1.75rem 1.85rem;
+  background:var(--rosa-hondo);color:var(--sobre-hondo);
+  border-radius:3px;max-width:34rem;
+}
+.hito-listo p:first-child{
+  font-family:var(--display);font-style:italic;font-size:1.75rem;line-height:1.15;
+}
+.hito-listo p:last-child{opacity:.85;margin-top:.5rem;font-size:.9375rem}
+
+/* ═══ ORNAMENTO ═══════════════════════════════════════════════════ */
+.ornamento{
+  display:flex;align-items:center;gap:1.25rem;
+  color:var(--rosa-claro);
+  max-width:var(--col);margin-inline:auto;
+  padding-inline:clamp(1.25rem,5vw,2.5rem);
+}
+.ornamento::before,.ornamento::after{
+  content:"";height:1px;flex:1;background:var(--linea);
+}
+.ornamento svg{flex:none;color:var(--rosa-hondo);opacity:.55}
+
+/* ═══ HISTORIA ════════════════════════════════════════════════════ */
+.linea-tiempo{
+  position:relative;
+  margin-left:.5rem;
+  display:flex;flex-direction:column;gap:2.75rem;
+}
+/* el hilo se desvanece abajo: la historia sigue abierta */
+.linea-tiempo::before{
+  content:"";position:absolute;left:0;top:.6rem;bottom:0;width:1px;
+  background:linear-gradient(to bottom,
+    var(--linea-fuerte) 0%, var(--linea-fuerte) 78%, transparent 100%);
+}
+.hito{position:relative;padding-left:clamp(1.5rem,4vw,2.5rem)}
+.hito::before{
+  content:"";position:absolute;left:-4.5px;top:.6rem;
+  width:9px;height:9px;border-radius:50%;
+  background:var(--rosa-hondo);
+  box-shadow:0 0 0 4px var(--ground);
+}
+.franja .hito::before{box-shadow:0 0 0 4px var(--panel)}
+.hito .cuando{
+  font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rosa-hondo);
+}
+.hito h3{
+  font-family:var(--display);font-size:clamp(1.4rem,3.4vw,1.85rem);
+  line-height:1.15;margin-top:.4rem;
+}
+.hito p{margin-top:.5rem;color:var(--tinta-2);max-width:var(--lectura)}
+
+/* el tramo abierto: anillo en vez de punto, porque no cerró */
+.hito.abierto::before{
+  width:11px;height:11px;left:-5.5px;
+  background:var(--ground);
+  border:1.5px solid var(--rosa-hondo);
+}
+.hito.abierto h3{color:var(--rosa-hondo)}
+.tramo-vivo{
+  display:inline-flex;align-items:baseline;gap:.55rem;
+  margin-top:1.25rem !important;
+  padding:.45rem 1rem .5rem;
+  border:1px dashed var(--rosa-claro);
+  border-radius:100px;
+  font-size:.8125rem;
+  color:var(--tinta-2) !important;
+}
+.tramo-vivo b{
+  font-family:var(--display);font-weight:400;font-size:1.4rem;line-height:1;
+  color:var(--rosa-hondo);
+  font-variant-numeric:lining-nums tabular-nums;
+}
+
+/* cosas sueltas: lo que no da para un bloque entero */
+.sueltos{
+  margin-top:clamp(2.75rem,6vw,3.75rem);
+  padding-top:1.75rem;
+  border-top:1px dashed var(--linea-fuerte);
+}
+.sueltos ul{
+  list-style:none;margin:1rem 0 0;padding:0;
+  columns:2;column-gap:clamp(1.5rem,4vw,3rem);
+}
+@media (max-width:640px){.sueltos ul{columns:1}}
+.sueltos li{
+  break-inside:avoid;
+  position:relative;
+  padding:.42rem 0 .42rem 1.5rem;
+  font-size:.9375rem;line-height:1.5;
+  color:var(--tinta-2);
+}
+.sueltos li::before{
+  content:"";position:absolute;left:0;top:1.08rem;
+  width:.7rem;height:1px;background:var(--rosa-claro);
+}
+
+/* ═══ MOTIVOS ═════════════════════════════════════════════════════ */
+.motivos{
+  display:grid;gap:1px;
+  grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));
+  background:var(--linea);
+  border:1px solid var(--linea);
+}
+.motivo{
+  background:var(--ground);
+  padding:1.6rem 1.5rem 1.75rem;
+  display:flex;flex-direction:column;gap:.85rem;
+}
+.franja .motivo{background:var(--panel)}
+.motivo .cifra{
+  font-family:var(--display);font-size:1.5rem;font-style:italic;
+  color:var(--rosa-hondo);line-height:1;
+}
+.motivo p{font-size:1rem;line-height:1.55}
+
+/* ═══ MOMENTOS / FOTOS ════════════════════════════════════════════ */
+.galeria{
+  display:grid;gap:clamp(1.25rem,3vw,2rem);
+  grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));
+}
+.polaroid{
+  background:var(--surface);
+  border:1px solid var(--linea);
+  padding:.75rem .75rem 0;
+  box-shadow:var(--sombra);
+  transition:transform .25s ease;
+}
+.polaroid:nth-child(odd){transform:rotate(-1.1deg)}
+.polaroid:nth-child(even){transform:rotate(.9deg)}
+.polaroid:hover{transform:rotate(0deg) translateY(-4px)}
+.polaroid .marco{
+  aspect-ratio:4/5;background:var(--rosa-suave);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.polaroid img{width:100%;height:100%;object-fit:cover}
+.polaroid .vacio{
+  width:100%;height:100%;
+  border:1.5px dashed var(--rosa-claro);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;
+  color:var(--rosa-hondo);
+  font-size:.8125rem;text-align:center;padding:1rem;
+}
+.polaroid .pie{
+  font-family:var(--mano);font-size:1.25rem;line-height:1.25;
+  padding:.85rem .35rem 1.1rem;text-align:center;color:var(--tinta);
+}
+
+/* ═══ PLANES ══════════════════════════════════════════════════════ */
+.planes{display:flex;flex-direction:column;gap:.15rem;max-width:44rem}
+.plan{display:flex;align-items:flex-start;gap:.9rem;padding:.7rem 0;border-bottom:1px dashed var(--linea)}
+.plan .caja{
+  flex:none;width:1.15rem;height:1.15rem;margin-top:.2rem;
+  border:1.5px solid var(--linea-fuerte);border-radius:2px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--sobre-hondo);
+}
+.plan.hecho .caja{background:var(--rosa-hondo);border-color:var(--rosa-hondo)}
+.plan.hecho .que{color:var(--tinta-2);text-decoration:line-through;text-decoration-color:var(--rosa-claro)}
+.plan .que{font-size:1.0625rem}
+
+/* ═══ EL CIERRE ═══════════════════════════════════════════════════ */
+.final{
+  background:var(--rosa-hondo);
+  color:var(--sobre-hondo);
+  text-align:center;
+}
+.final .envoltura{max-width:46rem}
+.final-corazon{color:var(--sobre-hondo);opacity:.5;margin-bottom:1.5rem}
+.final-frase{
+  font-family:var(--display);
+  font-style:italic;font-weight:300;
+  font-size:clamp(1.9rem,5.4vw,3.15rem);
+  line-height:1.13;
+  letter-spacing:-.01em;
+  text-wrap:balance;
+}
+.final-texto{
+  max-width:38ch;margin:1.5rem auto 0;
+  font-size:1.0625rem;
+  color:color-mix(in srgb, var(--sobre-hondo) 80%, transparent);
+}
+.final-sello{
+  display:inline-flex;align-items:baseline;gap:.6rem;
+  margin-top:2.25rem;
+  padding:.5rem 1.2rem .6rem;
+  border:1px solid color-mix(in srgb, var(--sobre-hondo) 34%, transparent);
+  border-radius:100px;
+  font-size:.6875rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+}
+.final-sello b{
+  font-family:var(--display);font-weight:400;
+  font-size:1.4rem;line-height:1;
+  letter-spacing:0;text-transform:none;
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.final-firma{
+  margin-top:2.25rem;
+  font-family:var(--mano);
+  font-size:clamp(1.55rem,4vw,2rem);
+  line-height:1.2;
+}
+
+/* ═══ PIE ═════════════════════════════════════════════════════════ */
+.pie-pagina{
+  border-top:1px solid var(--linea);
+  padding-block:2.5rem 3.5rem;
+  font-size:.8125rem;color:var(--tinta-2);
+  display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;justify-content:space-between;align-items:baseline;
+}
+.pie-pagina b{color:var(--rosa-hondo);font-variant-numeric:tabular-nums}
+
+/* ═══ PENDIENTES / MODO BORRADOR ══════════════════════════════════ */
+.pendiente{opacity:.72}
+.pendiente .que,.pendiente p,.pendiente .cuando{font-style:italic}
+.hito.pendiente::before{background:var(--ground);border:1.5px dashed var(--rosa-claro)}
+.franja .hito.pendiente::before{background:var(--panel)}
+.motivo.pendiente{border-style:dashed}
+.motivos .motivo.pendiente{outline:1px dashed var(--rosa-claro);outline-offset:-1px}
+.marca-pendiente{
+  display:inline-block;margin-bottom:.5rem;
+  font-size:.5625rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rosa-hondo);
+  border:1px dashed var(--rosa-claro);
+  border-radius:100px;padding:.15rem .55rem .2rem;
+}
+
+#panel{
+  position:fixed;right:1rem;bottom:1rem;z-index:60;
+  width:min(21rem,calc(100vw - 2rem));
+  background:var(--surface);
+  border:1px solid var(--linea-fuerte);
+  border-radius:4px;
+  box-shadow:0 20px 50px -20px rgba(56,32,43,.55);
+  overflow:hidden;
+}
+#panel .panel-cabeza{
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+  width:100%;padding:.8rem 1rem;
+  background:var(--rosa-hondo);color:var(--sobre-hondo);
+  font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+}
+#panel .panel-cuerpo{padding:1rem 1.1rem 1.2rem;max-height:min(24rem,50vh);overflow-y:auto}
+#panel .panel-cuerpo > p{font-size:.8125rem;color:var(--tinta-2);margin-bottom:.9rem}
+#panel ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.35rem}
+#panel li a{
+  display:flex;justify-content:space-between;gap:1rem;
+  text-decoration:none;font-size:.875rem;
+  padding:.35rem .5rem;border-radius:2px;
+}
+#panel li a:hover{background:var(--rosa-suave);color:var(--rosa-hondo)}
+#panel li span{color:var(--rosa-hondo);font-weight:700;font-variant-numeric:tabular-nums}
+#panel code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.75rem;background:var(--rosa-suave);color:var(--rosa-fuerte);
+  padding:.05rem .3rem;border-radius:2px;
+}
+#panel.plegado .panel-cuerpo{display:none}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  .polaroid:hover{transform:none}
+}
+</style>
+
+
+<!-- ═══════════════════ BARRA ═══════════════════ -->
+<nav class="barra">
+  <div class="envoltura barra-fila">
+    <div class="barra-marca">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="color:var(--rosa-hondo)"><path d="M12 21s-8.5-5.4-8.5-11A4.9 4.9 0 0 1 12 7a4.9 4.9 0 0 1 8.5 3c0 5.6-8.5 11-8.5 11z"/></svg>
+      <span>10 de marzo</span>
+      <b id="mini-contador">—</b>
+    </div>
+    <div class="barra-nav">
+      <a href="#contador">El tiempo</a>
+      <a href="#historia">Historia</a>
+      <a href="#momentos">Momentos</a>
+      <a href="#planes">Planes</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HÉROE ═══════════════════ -->
+<header class="heroe">
+  <canvas id="petalos" aria-hidden="true"></canvas>
+  <div class="envoltura">
+    <p class="heroe-epigrafe" id="epigrafe"></p>
+    <h1 id="titulo-heroe">Seis meses<br><em>hablándonos</em></h1>
+    <p class="heroe-nombres" id="nombres" hidden></p>
+    <p class="heroe-bajada" id="bajada"></p>
+    <p><span class="chapa" id="chapa"><span class="punto"></span><span id="chapa-texto">—</span></span></p>
+  </div>
+</header>
+
+<!-- ═══════════════════ CONTADOR ═══════════════════ -->
+<section id="contador">
+  <div class="envoltura contador-caja">
+    <p class="contador-desde" id="desde">Desde el 10 de marzo de 2026</p>
+
+    <div class="numerote" aria-hidden="true">
+      <span id="entero"></span><span class="frac" id="decimales"></span>
+    </div>
+    <p class="unidad-nombre" id="unidad-nombre">segundos</p>
+    <p class="sr-only" id="lectura-accesible" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)" aria-live="polite"></p>
+
+    <div class="selector" id="selector" role="group" aria-label="Elegí en qué unidad ver el tiempo"></div>
+
+    <p class="desglose" id="desglose"></p>
+
+    <div class="cinta-marco">
+      <p class="cinta-titulo">La cinta métrica de lo nuestro</p>
+      <div class="cinta-scroll" id="cinta-scroll">
+        <div class="cinta" id="cinta-ancho">
+          <div class="cinta-pista" id="cinta">
+            <div class="cinta-linea"></div>
+            <div class="cinta-tramo" id="cinta-tramo"></div>
+            <div class="aguja" id="aguja"><span>hoy</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PRÓXIMO HITO ═══════════════════ -->
+<section class="franja" id="proximo">
+  <div class="envoltura">
+    <div class="cabecera-seccion">
+      <p class="rotulo">El próximo diez</p>
+      <h2 class="titulo" id="proximo-titulo">Falta poco para el <em>mes que viene</em></h2>
+      <p class="entrada" id="proximo-bajada"></p>
+    </div>
+    <div class="cuenta-atras" id="cuenta-atras">
+      <div class="casilla"><p class="n" id="ca-d">0</p><p class="u">días</p></div>
+      <div class="casilla"><p class="n" id="ca-h">0</p><p class="u">horas</p></div>
+      <div class="casilla"><p class="n" id="ca-m">0</p><p class="u">minutos</p></div>
+      <div class="casilla"><p class="n" id="ca-s">0</p><p class="u">segundos</p></div>
+    </div>
+    <div class="hito-listo" id="hito-listo" hidden>
+      <p id="hito-listo-titulo"></p>
+      <p id="hito-listo-texto"></p>
+    </div>
+  </div>
+</section>
+
+<div class="ornamento" aria-hidden="true">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-8.5-5.4-8.5-11A4.9 4.9 0 0 1 12 7a4.9 4.9 0 0 1 8.5 3c0 5.6-8.5 11-8.5 11z"/></svg>
+</div>
+
+<!-- ═══════════════════ HISTORIA ═══════════════════ -->
+<section id="historia">
+  <div class="envoltura">
+    <div class="cabecera-seccion">
+      <p class="rotulo">Nuestra historia</p>
+      <h2 class="titulo">Los días que <em>sí</em> me acuerdo</h2>
+      <p class="entrada">Algunos dias o cosas que siempre me voy a acordar.</p>
+    </div>
+    <div class="linea-tiempo" id="linea-tiempo"></div>
+
+    <div class="sueltos" id="sueltos" hidden>
+      <p class="rotulo">Y también, sin orden</p>
+      <ul id="lista-sueltos"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MOTIVOS ═══════════════════ -->
+<section class="franja" id="motivos">
+  <div class="envoltura">
+    <div class="cabecera-seccion">
+      <p class="rotulo">Cosas tuyas</p>
+      <h2 class="titulo">Detalles que <em>nadie más</em> te vio</h2>
+      <p class="entrada">Cosas chiquitas que amo de vos.</p>
+    </div>
+    <div class="motivos" id="lista-motivos"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MOMENTOS ═══════════════════ -->
+<section id="momentos">
+  <div class="envoltura">
+    <div class="cabecera-seccion">
+      <p class="rotulo">Momentos</p>
+      <h2 class="titulo">Pruebas de que <em>pasó</em></h2>
+    </div>
+    <div class="galeria" id="galeria"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ PLANES ═══════════════════ -->
+<section class="franja" id="planes">
+  <div class="envoltura">
+    <div class="cabecera-seccion">
+      <p class="rotulo">Pendientes</p>
+      <h2 class="titulo">Lo que <em>falta</em> hacer</h2>
+      <p class="entrada">La lista no se termina nunca. Esa es la idea.</p>
+    </div>
+    <div class="planes" id="lista-planes"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ EL CIERRE ═══════════════════ -->
+<section class="final" id="final">
+  <div class="envoltura">
+    <svg class="final-corazon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-8.5-5.4-8.5-11A4.9 4.9 0 0 1 12 7a4.9 4.9 0 0 1 8.5 3c0 5.6-8.5 11-8.5 11z"/></svg>
+    <p class="final-frase" id="final-frase"></p>
+    <p class="final-texto" id="final-texto"></p>
+    <p><span class="final-sello"><b id="final-dias">—</b> días · y sigue contando</span></p>
+    <p class="final-firma" id="final-firma"></p>
+  </div>
+</section>
+
+<footer>
+  <div class="envoltura pie-pagina">
+    <p>10 de marzo de 2026 → hoy · <b id="pie-contador">—</b></p>
+    <p>Hecho a mano.</p>
+  </div>
+</footer>
+
+<aside id="panel" hidden>
+  <button class="panel-cabeza" id="panel-toggle" aria-expanded="true">
+    <span>Te falta completar · <span id="panel-total">0</span></span>
+    <span aria-hidden="true" id="panel-flecha">▾</span>
+  </button>
+  <div class="panel-cuerpo">
+    <p>Esto lo ves solo vos. Editá el bloque <code>CONFIG</code> arriba del archivo y borrá <code>pendiente: true</code> de cada cosa que completes. Cuando termines, poné <code>modoBorrador: false</code> y todo lo que quede sin llenar se esconde solo.</p>
+    <ul id="panel-lista"></ul>
+  </div>
+</aside>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = (s) => document.querySelector(s);
+  const nf = new Intl.NumberFormat("es-AR");
+  const BORRADOR = CONFIG.modoBorrador === true;
+  const INICIO = new Date(CONFIG.inicio);
+
+  /* ── fechas ─────────────────────────────────────────────────── */
+
+  const sumarMeses = (d, n) => {
+    const r = new Date(d.getFullYear(), d.getMonth(), 1,
+                       d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
+    r.setMonth(r.getMonth() + n);
+    const ultimo = new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate();
+    r.setDate(Math.min(d.getDate(), ultimo));
+    return r;
+  };
+
+  const mesesEnteros = (a, b) => {
+    let m = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+    if (sumarMeses(a, m) > b) m--;
+    return Math.max(0, m);
+  };
+
+  const fraccionDe = (a, b, paso) => {
+    const m = Math.floor(mesesEnteros(a, b) / paso) * paso;
+    const desde = sumarMeses(a, m), hasta = sumarMeses(a, m + paso);
+    return m / paso + (b - desde) / (hasta - desde);
+  };
+
+  const fmtFecha = (d, opts) => d.toLocaleDateString("es-AR", opts);
+  const capital = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  const PALABRAS = ["cero", "un", "dos", "tres", "cuatro", "cinco", "seis", "siete",
+    "ocho", "nueve", "diez", "once", "doce", "trece", "catorce", "quince", "dieciséis",
+    "diecisiete", "dieciocho", "diecinueve", "veinte", "veintiuno", "veintidós",
+    "veintitrés", "veinticuatro"];
+  const enPalabras = (n) => PALABRAS[n] || String(n);
+
+  /* ── unidades del contador ──────────────────────────────────── */
+
+  const UNIDADES = [
+    { id: "segundos", label: "segundos", dec: 0, calc: (a, b) => (b - a) / 1e3 },
+    { id: "minutos",  label: "minutos",  dec: 2, calc: (a, b) => (b - a) / 6e4 },
+    { id: "horas",    label: "horas",    dec: 4, calc: (a, b) => (b - a) / 36e5 },
+    { id: "dias",     label: "días",     dec: 6, calc: (a, b) => (b - a) / 864e5 },
+    { id: "semanas",  label: "semanas",  dec: 6, calc: (a, b) => (b - a) / 6048e5 },
+    { id: "meses",    label: "meses",    dec: 7, calc: (a, b) => fraccionDe(a, b, 1) },
+    { id: "anios",    label: "años",     dec: 8, calc: (a, b) => fraccionDe(a, b, 12) }
+  ];
+  let unidad = UNIDADES[0];
+
+  const selector = $("#selector");
+  UNIDADES.forEach((u) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = capital(u.label);
+    b.setAttribute("aria-pressed", String(u === unidad));
+    b.addEventListener("click", () => {
+      unidad = u;
+      [...selector.children].forEach((c, i) => c.setAttribute("aria-pressed", String(UNIDADES[i] === u)));
+      $("#unidad-nombre").textContent = u.label;
+      $("#entero").textContent = "";
+      latir();
+    });
+    selector.appendChild(b);
+  });
+  $("#unidad-nombre").textContent = unidad.label;
+
+  /* dígitos de ancho fijo: el número crece sin temblar */
+  const pintar = (el, txt) => {
+    if (el.childElementCount !== txt.length) {
+      el.textContent = "";
+      for (const ch of txt) {
+        const s = document.createElement("span");
+        s.className = /[0-9]/.test(ch) ? "dig" : "sep";
+        s.textContent = ch;
+        el.appendChild(s);
+      }
+      return;
+    }
+    const hijos = el.children;
+    for (let i = 0; i < txt.length; i++) {
+      if (hijos[i].textContent !== txt[i]) hijos[i].textContent = txt[i];
+    }
+  };
+
+  /* ── cinta métrica ──────────────────────────────────────────── */
+
+  const cinta = $("#cinta");
+  const aguja = $("#aguja");
+  const tramo = $("#cinta-tramo");
+  let totalMarcas = 0;
+
+  const armarCinta = () => {
+    const ahora = new Date();
+    const actual = mesesEnteros(INICIO, ahora);
+    totalMarcas = Math.max(7, actual + 2);
+    document.getElementById("cinta-ancho").style.minWidth =
+      (totalMarcas + 1) * 78 + 88 + "px";
+    cinta.querySelectorAll(".marca").forEach((n) => n.remove());
+
+    for (let i = 0; i <= totalMarcas; i++) {
+      const f = sumarMeses(INICIO, i);
+      const grande = i === 0 || i % 6 === 0;
+      const m = document.createElement("div");
+      m.className = "marca" + (grande ? " grande" : "");
+      m.style.left = (i / totalMarcas) * 100 + "%";
+      m.innerHTML =
+        '<div class="palito"></div>' +
+        '<div class="fecha">' + fmtFecha(f, { day: "numeric", month: "short" }) + "</div>" +
+        (grande && i > 0 ? '<div class="hito">' + i + " meses</div>" : "") +
+        (i === 0 ? '<div class="hito">el principio</div>' : "");
+      cinta.appendChild(m);
+    }
+  };
+
+  const moverAguja = (ahora) => {
+    const pos = Math.min(fraccionDe(INICIO, ahora, 1) / totalMarcas, 1);
+    aguja.style.left = pos * 100 + "%";
+    tramo.style.width = pos * 100 + "%";
+  };
+
+  /* ── latido general ─────────────────────────────────────────── */
+
+  const elEntero = $("#entero"), elDec = $("#decimales");
+  const desglose = $("#desglose"), mini = $("#mini-contador"), pie = $("#pie-contador");
+  const finDias = $("#final-dias");
+  const lector = $("#lectura-accesible");
+  const caD = $("#ca-d"), caH = $("#ca-h"), caM = $("#ca-m"), caS = $("#ca-s");
+  let ultimoSegundo = -1;
+  let tramoDesde = null, elTramoDias = null;
+
+  function latir() {
+    const ahora = new Date();
+    if (ahora < INICIO) return;
+
+    /* contador grande */
+    const valor = unidad.calc(INICIO, ahora);
+    pintar(elEntero, nf.format(Math.floor(valor)));
+    elDec.textContent = unidad.dec
+      ? "," + valor.toFixed(unidad.dec).split(".")[1]
+      : "";
+
+    /* desglose en calendario real */
+    const meses = mesesEnteros(INICIO, ahora);
+    let resto = ahora - sumarMeses(INICIO, meses);
+    const dias = Math.floor(resto / 864e5); resto -= dias * 864e5;
+    const horas = Math.floor(resto / 36e5); resto -= horas * 36e5;
+    const mins = Math.floor(resto / 6e4);
+    const segs = Math.floor((resto - mins * 6e4) / 1e3);
+
+    const plural = (n, s, p) => n + " " + (n === 1 ? s : p);
+    desglose.innerHTML =
+      "Que son, exactamente, <b>" + plural(meses, "mes", "meses") + "</b>, " +
+      plural(dias, "día", "días") + ", " + plural(horas, "hora", "horas") + ", " +
+      plural(mins, "minuto", "minutos") + " y " + plural(segs, "segundo", "segundos") + ".";
+
+    const totalDias = Math.floor((ahora - INICIO) / 864e5);
+    if (segs !== ultimoSegundo) {
+      ultimoSegundo = segs;
+      const corto = plural(meses, "mes", "meses") + " y " + plural(dias, "día", "días");
+      mini.textContent = corto;
+      pie.textContent = nf.format(totalDias) + " días";
+      if (finDias) finDias.textContent = nf.format(totalDias);
+      lector.textContent = corto;
+      if (tramoDesde && elTramoDias) {
+        elTramoDias.textContent = nf.format(Math.max(0, Math.floor((ahora - tramoDesde) / 864e5)));
+      }
+    }
+
+    moverAguja(ahora);
+
+    /* cuenta regresiva al próximo diez */
+    const proximo = sumarMeses(INICIO, meses + 1);
+    let falta = proximo - ahora;
+    const fd = Math.floor(falta / 864e5); falta -= fd * 864e5;
+    const fh = Math.floor(falta / 36e5); falta -= fh * 36e5;
+    const fm = Math.floor(falta / 6e4);
+    const fs = Math.floor((falta - fm * 6e4) / 1e3);
+    caD.textContent = fd; caH.textContent = fh; caM.textContent = fm; caS.textContent = fs;
+
+    return { meses, dias, totalDias, proximo };
+  }
+
+  /* ── textos que dependen de la fecha ────────────────────────── */
+
+  const ponerTextos = () => {
+    const ahora = new Date();
+    const meses = mesesEnteros(INICIO, ahora);
+    const aniversario = sumarMeses(INICIO, meses);
+    const proximo = sumarMeses(INICIO, meses + 1);
+    const esHoy = aniversario.toDateString() === ahora.toDateString();
+    const faltanDias = Math.ceil((new Date(proximo.getFullYear(), proximo.getMonth(), proximo.getDate()) - new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate())) / 864e5);
+
+    $("#desde").textContent = "Desde el " + fmtFecha(INICIO, { day: "numeric", month: "long", year: "numeric" });
+
+    $("#titulo-heroe").innerHTML = meses < 1
+      ? "Nos estamos<br><em>hablando</em>"
+      : capital(enPalabras(meses)) + (meses === 1 ? " mes" : " meses") + "<br><em>hablándonos</em>";
+
+    const chapa = $("#chapa"), texto = $("#chapa-texto");
+    if (esHoy && meses > 0) {
+      chapa.classList.add("hoy");
+      texto.textContent = "Hoy cumplimos " + meses + " meses";
+    } else {
+      texto.textContent = faltanDias === 1
+        ? "Mañana cumplimos " + (meses + 1) + " meses"
+        : "Faltan " + faltanDias + " días para los " + (meses + 1) + " meses";
+    }
+
+    $("#proximo-titulo").innerHTML = esHoy && meses > 0
+      ? "Hoy son <em>" + meses + " meses</em>"
+      : "Faltan para los <em>" + (meses + 1) + " meses</em>";
+
+    $("#proximo-bajada").textContent =
+      "El " + fmtFecha(proximo, { weekday: "long", day: "numeric", month: "long" }) +
+      " sumamos otro diez a la cuenta. Este reloj no se detiene ni cuando cerrás la página.";
+
+    if (esHoy && meses > 0) {
+      $("#cuenta-atras").hidden = true;
+      const caja = $("#hito-listo");
+      caja.hidden = false;
+      $("#hito-listo-titulo").textContent = "Es hoy. " + meses + " meses.";
+      $("#hito-listo-texto").textContent = "Nos empezamos a hablar un " +
+        fmtFecha(INICIO, { weekday: "long" }) + " y acá estamos.";
+    }
+  };
+
+  /* ── contenido editable ─────────────────────────────────────── */
+
+  const visibles = (arr) => (arr || []).filter((x) => BORRADOR || !x.pendiente);
+  const faltantes = [];
+  const contar = (arr, nombre, ancla) => {
+    const n = (arr || []).filter((x) => x.pendiente).length;
+    if (n) faltantes.push({ nombre, ancla, n });
+  };
+
+  const sello = (item) =>
+    BORRADOR && item.pendiente ? '<span class="marca-pendiente">Completar</span>' : "";
+
+  const esc = (s) => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  /* héroe */
+  $("#epigrafe").textContent = CONFIG.epigrafe || "";
+  $("#bajada").textContent = CONFIG.bajada || "";
+  const { ella, yo } = CONFIG.nombres || {};
+  if (ella && yo) {
+    $("#nombres").textContent = ella + " & " + yo;
+    $("#nombres").hidden = false;
+  } else if (BORRADOR) {
+    faltantes.push({ nombre: "Los nombres de ustedes dos", ancla: "#contador", n: 1 });
+  }
+
+  /* historia */
+  const nodos = visibles(CONFIG.historia).map((h) => {
+    const f = new Date(h.fecha + "T12:00:00");
+    const cuando = isNaN(f) ? "" : capital(fmtFecha(f, { day: "numeric", month: "long", year: "numeric" }));
+    return '<article class="hito' + (h.pendiente ? " pendiente" : "") + '">' +
+      sello(h) +
+      (h.pendiente || !cuando ? "" : '<p class="cuando">' + esc(cuando) + "</p>") +
+      "<h3>" + esc(h.titulo) + "</h3>" +
+      "<p>" + esc(h.texto) + "</p></article>";
+  });
+
+  /* el tramo abierto: no tiene final, se cuenta solo */
+  const cierre = CONFIG.cierre;
+  if (cierre && cierre.desde && (BORRADOR || !cierre.pendiente)) {
+    const d = new Date(cierre.desde + "T00:00:00");
+    if (!isNaN(d)) {
+      tramoDesde = d;
+      nodos.push(
+        '<article class="hito abierto' + (cierre.pendiente ? " pendiente" : "") + '">' +
+        sello(cierre) +
+        '<p class="cuando">Desde el ' +
+          esc(fmtFecha(d, { day: "numeric", month: "long" })) + " · hasta hoy</p>" +
+        "<h3>" + esc(cierre.titulo) + "</h3>" +
+        "<p>" + esc(cierre.texto) + "</p>" +
+        '<p class="tramo-vivo"><b id="tramo-dias">—</b> días más, y contando.</p>' +
+        "</article>"
+      );
+    }
+  }
+  $("#linea-tiempo").innerHTML = nodos.join("");
+  elTramoDias = $("#tramo-dias");
+  contar(CONFIG.historia, "Momentos de la historia", "#historia");
+
+  /* cosas sueltas */
+  const sueltos = visibles(CONFIG.sueltos);
+  $("#lista-sueltos").innerHTML = sueltos.map((s) =>
+    "<li" + (s.pendiente ? ' class="pendiente"' : "") + ">" + esc(s.texto) + "</li>"
+  ).join("");
+  $("#sueltos").hidden = sueltos.length === 0;
+  contar(CONFIG.sueltos, "Cosas sueltas", "#historia");
+
+  /* motivos */
+  const motivos = visibles(CONFIG.motivos);
+  $("#lista-motivos").innerHTML = motivos.map((m, i) =>
+    '<div class="motivo' + (m.pendiente ? " pendiente" : "") + '">' +
+    '<p class="cifra">' + String(i + 1).padStart(2, "0") + "</p>" +
+    sello(m) + "<p>" + esc(m.texto) + "</p></div>"
+  ).join("");
+  $("#motivos").hidden = motivos.length === 0;
+  contar(CONFIG.motivos, "Cosas tuyas", "#motivos");
+
+  /* momentos */
+  const fotos = visibles(CONFIG.momentos);
+  $("#galeria").innerHTML = fotos.map((f) =>
+    '<figure class="polaroid' + (f.pendiente ? " pendiente" : "") + '">' +
+    '<div class="marco">' + (f.src
+      ? '<img src="' + esc(f.src) + '" alt="' + esc(f.pie) + '" loading="lazy">'
+      : '<div class="vacio"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/></svg><span>Poné una foto acá</span></div>'
+    ) + "</div>" +
+    '<figcaption class="pie">' + esc(f.pie) + "</figcaption></figure>"
+  ).join("");
+  $("#momentos").hidden = fotos.length === 0;
+  contar(CONFIG.momentos, "Fotos", "#momentos");
+
+  /* planes */
+  const planes = visibles(CONFIG.planes);
+  $("#lista-planes").innerHTML = planes.map((p) =>
+    '<div class="plan' + (p.hecho ? " hecho" : "") + (p.pendiente ? " pendiente" : "") + '">' +
+    '<span class="caja">' + (p.hecho
+      ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="m5 12.5 5 5L19 7"/></svg>' : "") +
+    "</span><span class=\"que\">" + esc(p.texto) + "</span></div>"
+  ).join("");
+  $("#planes").hidden = planes.length === 0;
+  contar(CONFIG.planes, "Cosas para hacer juntos", "#planes");
+
+  /* el cierre */
+  const fin = CONFIG.final || {};
+  $("#final-frase").textContent = fin.frase || "";
+  $("#final-texto").textContent = fin.texto || "";
+  $("#final-firma").textContent = fin.firma || "";
+  $("#final").hidden = !fin.frase;
+
+  /* ── panel de pendientes (solo en modo borrador) ────────────── */
+
+  if (BORRADOR && faltantes.length) {
+    const panel = $("#panel");
+    panel.hidden = false;
+    $("#panel-total").textContent = faltantes.reduce((a, f) => a + f.n, 0);
+    $("#panel-lista").innerHTML = faltantes.map((f) =>
+      '<li><a href="' + f.ancla + '">' + esc(f.nombre) + "<span>" + f.n + "</span></a></li>"
+    ).join("");
+    $("#panel-toggle").addEventListener("click", () => {
+      const plegado = panel.classList.toggle("plegado");
+      $("#panel-toggle").setAttribute("aria-expanded", String(!plegado));
+      $("#panel-flecha").textContent = plegado ? "▴" : "▾";
+    });
+  }
+
+  /* ── pétalos del héroe ──────────────────────────────────────── */
+
+  const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const lienzo = $("#petalos");
+  if (lienzo.getContext) {
+    const ctx = lienzo.getContext("2d");
+    const heroe = lienzo.parentElement;
+    let w = 0, h = 0, petalos = [];
+
+    const medir = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = heroe.clientWidth; h = heroe.clientHeight;
+      lienzo.width = w * dpr; lienzo.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const nacer = (arriba) => ({
+      x: Math.random() * w,
+      y: arriba ? -20 - Math.random() * h : Math.random() * h,
+      r: 3 + Math.random() * 6,
+      v: .16 + Math.random() * .3,
+      a: Math.random() * Math.PI * 2,
+      giro: (Math.random() - .5) * .012,
+      op: .18 + Math.random() * .3
+    });
+
+    const color = () =>
+      getComputedStyle(document.documentElement).getPropertyValue("--rosa-claro").trim() || "#F5B8CD";
+
+    const dibujar = () => {
+      ctx.clearRect(0, 0, w, h);
+      const c = color();
+      for (const p of petalos) {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.a);
+        ctx.globalAlpha = p.op;
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.r, p.r * .62, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    };
+
+    const animar = () => {
+      for (const p of petalos) {
+        p.y += p.v;
+        p.x += Math.sin(p.y / 42) * .22;
+        p.a += p.giro;
+        if (p.y > h + 20) Object.assign(p, nacer(true), { y: -20 });
+      }
+      dibujar();
+      requestAnimationFrame(animar);
+    };
+
+    const arrancar = () => {
+      medir();
+      petalos = Array.from({ length: w < 640 ? 14 : 26 }, () => nacer(false));
+      dibujar();
+      if (!quieto) requestAnimationFrame(animar);
+    };
+
+    arrancar();
+    let temporizador;
+    window.addEventListener("resize", () => {
+      clearTimeout(temporizador);
+      temporizador = setTimeout(() => { medir(); dibujar(); }, 180);
+    });
+  }
+
+  /* ── arranque ───────────────────────────────────────────────── */
+
+  ponerTextos();
+  armarCinta();
+  latir();
+  setInterval(latir, 70);
+  setInterval(ponerTextos, 60000);
+
+  /* dejar la aguja a la vista en pantallas chicas */
+  const scroll = $("#cinta-scroll");
+  requestAnimationFrame(() => {
+    const x = aguja.offsetLeft - scroll.clientWidth / 2;
+    if (x > 0) scroll.scrollLeft = x;
+  });
+})();
+</script>
+<!--ARTIFACT-FIN-->
+</body>
+</html>
