@@ -204,6 +204,7 @@ const CONFIG = {
 [hidden]{display:none !important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0}
+figure,figcaption{margin:0} /* el navegador le mete 40px a los lados si no */
 img{max-width:100%;display:block}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 a{color:inherit}
@@ -321,7 +322,9 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 /* ═══ BARRA SUPERIOR ══════════════════════════════════════════════ */
 .barra{
   position:sticky;top:0;z-index:40;
+  background:var(--ground); /* respaldo para Safari viejo */
   background:color-mix(in srgb, var(--ground) 86%, transparent);
+  -webkit-backdrop-filter:blur(12px) saturate(140%);
   backdrop-filter:blur(12px) saturate(140%);
   border-bottom:1px solid var(--linea);
 }
@@ -469,21 +472,23 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   text-align:center;margin-bottom:1.5rem;
 }
 .cinta-scroll{overflow-x:auto;padding-bottom:.5rem;scrollbar-width:thin}
-.cinta{height:6.5rem;min-width:100%;padding-inline:2.75rem}
+/* El "HOY" va arriba de la cinta y las fechas abajo: si no, el día que
+   caiga justo sobre un hito los dos carteles se pisan. */
+.cinta{height:7.6rem;min-width:100%;padding-inline:2.75rem}
 .cinta-pista{position:relative;height:100%}
 .cinta-linea{
-  position:absolute;left:0;right:0;top:2.6rem;height:1px;background:var(--linea-fuerte);
+  position:absolute;left:0;right:0;top:3.4rem;height:1px;background:var(--linea-fuerte);
 }
 .cinta-tramo{
-  position:absolute;top:2.6rem;left:0;height:3px;margin-top:-1px;
+  position:absolute;top:3.4rem;left:0;height:3px;margin-top:-1px;
   background:var(--rosa-claro);border-radius:2px;
 }
 .marca{position:absolute;top:0;transform:translateX(-50%);text-align:center;width:5rem}
 .marca .palito{
   width:1px;height:.85rem;background:var(--linea-fuerte);
-  margin:1.75rem auto 0;
+  margin:2.55rem auto 0;
 }
-.marca.grande .palito{height:1.35rem;width:1.5px;background:var(--rosa-hondo);margin-top:1.25rem}
+.marca.grande .palito{height:1.35rem;width:1.5px;background:var(--rosa-hondo);margin-top:2.05rem}
 .marca .fecha{
   font-size:.6875rem;font-weight:600;color:var(--tinta-2);
   margin-top:.45rem;letter-spacing:.02em;
@@ -492,9 +497,11 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 .marca .hito{
   font-family:var(--display);font-style:italic;font-size:.9375rem;
   color:var(--rosa-hondo);margin-top:.05rem;
+  white-space:nowrap; /* "el principio" no se parte en dos renglones */
 }
+.marca .fecha{white-space:nowrap}
 .aguja{
-  position:absolute;top:1.1rem;bottom:2.1rem;width:2px;
+  position:absolute;top:1.9rem;bottom:2.1rem;width:2px;
   background:var(--rosa-hondo);transform:translateX(-50%);
   border-radius:2px;
 }
@@ -506,7 +513,7 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   border-radius:1px;
 }
 .aguja span{
-  position:absolute;bottom:-1.85rem;left:50%;transform:translateX(-50%);
+  position:absolute;top:-1.75rem;left:50%;transform:translateX(-50%);
   white-space:nowrap;
   font-size:.6875rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   color:var(--rosa-hondo);
@@ -666,9 +673,11 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 .polaroid:hover{transform:rotate(0deg) translateY(-4px)}
 .polaroid .marco{
   aspect-ratio:4/5;background:var(--rosa-suave);
+  /* las fotos apaisadas se recortan menos: se les da marco horizontal */
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;
 }
+.polaroid .marco.ancha{aspect-ratio:4/3}
 .polaroid img{width:100%;height:100%;object-fit:cover}
 .polaroid .vacio{
   width:100%;height:100%;
@@ -714,13 +723,15 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 .final-texto{
   max-width:38ch;margin:1.5rem auto 0;
   font-size:1.0625rem;
+  color:var(--sobre-hondo);
   color:color-mix(in srgb, var(--sobre-hondo) 80%, transparent);
 }
 .final-sello{
   display:inline-flex;align-items:baseline;gap:.6rem;
   margin-top:2.25rem;
   padding:.5rem 1.2rem .6rem;
-  border:1px solid color-mix(in srgb, var(--sobre-hondo) 34%, transparent);
+  border:1px solid var(--sobre-hondo);
+  border-color:color-mix(in srgb, var(--sobre-hondo) 34%, transparent);
   border-radius:100px;
   font-size:.6875rem;font-weight:700;
   letter-spacing:.14em;text-transform:uppercase;
@@ -793,6 +804,40 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   padding:.05rem .3rem;border-radius:2px;
 }
 #panel.plegado .panel-cuerpo{display:none}
+
+/* ═══ TELÉFONO ════════════════════════════════════════════════════ */
+/* Medido sobre un iPhone 13: 390 × 844 px */
+@media (max-width:520px){
+  :root{--aire:clamp(3rem,11vw,4.25rem)}
+
+  /* que el título entre entero aunque un día diga "Diecisiete meses" */
+  .heroe h1{font-size:clamp(2.5rem,12.5vw,4rem)}
+  .heroe-bajada{font-size:1rem}
+
+  /* el número gigante, completo, sin cortarse */
+  .numerote{font-size:clamp(2.5rem,15.5vw,4.5rem)}
+  .desglose{font-size:.875rem}
+
+  /* los cuatro casilleros de la cuenta atrás sin apretarse */
+  .cuenta-atras{gap:.4rem}
+  .casilla{padding:.85rem .2rem .8rem}
+  .casilla .u{font-size:.5rem;letter-spacing:.07em}
+
+  /* la cinta usa todo el ancho de la pantalla y se arrastra con el dedo */
+  .cinta-scroll{
+    margin-inline:calc(-1 * clamp(1.25rem,5vw,2.5rem));
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* botones cómodos para el pulgar */
+  .selector{gap:.35rem}
+  .selector button{padding:.58rem 1rem .62rem;font-size:.875rem}
+
+  /* las fotos como pared de a dos: se recorre mucho menos */
+  .galeria{grid-template-columns:1fr 1fr;gap:.9rem}
+  .polaroid{padding:.45rem .45rem 0}
+  .polaroid .pie{font-size:1rem;padding:.6rem .15rem .8rem;line-height:1.15}
+}
 
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -1288,6 +1333,15 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   $("#momentos").hidden = fotos.length === 0;
   contar(CONFIG.momentos, "Fotos", "#momentos");
 
+  /* a las fotos apaisadas se les da marco horizontal, así no se recortan tanto */
+  document.querySelectorAll(".polaroid img").forEach((img) => {
+    const marcar = () => {
+      if (img.naturalWidth > img.naturalHeight) img.parentElement.classList.add("ancha");
+    };
+    if (img.complete && img.naturalWidth) marcar();
+    else img.addEventListener("load", marcar, { once: true });
+  });
+
   /* planes */
   const planes = visibles(CONFIG.planes);
   $("#lista-planes").innerHTML = planes.map((p) =>
@@ -1403,10 +1457,13 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 
   /* dejar la aguja a la vista en pantallas chicas */
   const scroll = $("#cinta-scroll");
-  requestAnimationFrame(() => {
+  const centrarCinta = () => {
     const x = aguja.offsetLeft - scroll.clientWidth / 2;
-    if (x > 0) scroll.scrollLeft = x;
-  });
+    scroll.scrollLeft = Math.max(0, x);
+  };
+  requestAnimationFrame(centrarCinta);
+  /* al girar el teléfono la cinta vuelve a quedar centrada en "hoy" */
+  window.addEventListener("resize", () => setTimeout(centrarCinta, 200));
 })();
 </script>
 <!--ARTIFACT-FIN-->
