@@ -189,7 +189,26 @@ const CONFIG = {
   },
 
 
-  /* ── 7. MODO BORRADOR ───────────────────────────────────────────── */
+  /* ── 7. LA CANCIÓN ──────────────────────────────────────────────── */
+  // Poné el mp3 en la carpeta  musica/  y escribí acá el nombre del archivo.
+  // Si dejás  archivo: ""  el botón directamente no aparece.
+  //
+  // OJO: NO arranca sola, y no es algo que se pueda arreglar. Ningún
+  // navegador permite que una página empiece a sonar sin que la persona
+  // toque algo primero, y el iPhone es el más estricto de todos. Por eso
+  // aparece un botón redondo abajo a la derecha para que le dé play.
+  //
+  // Otro detalle del iPhone: si tiene el switch de silencio activado,
+  // no se va a escuchar aunque le dé play.
+
+  musica: {
+    archivo: "musica/puesto.mp3",
+    titulo: "Puesto",
+    artista: "Babasónicos"
+  },
+
+
+  /* ── 8. MODO BORRADOR ───────────────────────────────────────────── */
   // true  → ves los pendientes y el panel que te dice qué falta.
   // false → se esconde todo lo que quedó sin completar. Ponelo en false
   //         antes de pasarle la página.
@@ -805,6 +824,46 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 }
 #panel.plegado .panel-cuerpo{display:none}
 
+/* ═══ LA CANCIÓN ══════════════════════════════════════════════════ */
+.reproductor{position:fixed;right:1rem;bottom:1rem;z-index:50}
+.rep-boton{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.5rem 1.1rem .55rem .55rem;
+  background:var(--rosa-hondo);
+  color:var(--sobre-hondo);
+  border-radius:100px;
+  box-shadow:0 4px 22px -6px rgba(56,32,43,.45);
+  max-width:min(17rem,calc(100vw - 2rem));
+}
+.rep-boton:hover{filter:brightness(1.06)}
+.rep-icono{
+  flex:none;width:2rem;height:2rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--sobre-hondo);color:var(--rosa-hondo);
+}
+.rep-play{margin-left:2px}
+.rep-ondas{display:none;align-items:flex-end;gap:2px;height:14px}
+.rep-ondas i{width:2.5px;height:5px;border-radius:1px;background:currentColor;animation:onda .95s ease-in-out infinite}
+.rep-ondas i:nth-child(2){animation-delay:.24s}
+.rep-ondas i:nth-child(3){animation-delay:.48s}
+@keyframes onda{0%,100%{height:4px}50%{height:14px}}
+.sonando .rep-play{display:none}
+.sonando .rep-ondas{display:flex}
+
+.rep-texto{display:flex;flex-direction:column;min-width:0;text-align:left}
+.rep-titulo{
+  font-size:.8125rem;font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.rep-artista{
+  font-size:.6875rem;opacity:.75;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+/* un latido corto al principio, para que se note que hay música */
+.reproductor:not(.sonando):not(.tocado) .rep-boton{animation:latido 2.4s ease-in-out 2s 3}
+@keyframes latido{0%,100%{transform:scale(1)}50%{transform:scale(1.055)}}
+
 /* ═══ TELÉFONO ════════════════════════════════════════════════════ */
 /* Medido sobre un iPhone 13: 390 × 844 px */
 @media (max-width:520px){
@@ -837,12 +896,17 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   .galeria{grid-template-columns:1fr 1fr;gap:.9rem}
   .polaroid{padding:.45rem .45rem 0}
   .polaroid .pie{font-size:1rem;padding:.6rem .15rem .8rem;line-height:1.15}
+
+  /* el reproductor, más chico y donde llega el pulgar */
+  .reproductor{right:.75rem;bottom:.75rem}
+  .rep-boton{max-width:calc(100vw - 1.5rem);padding:.45rem .95rem .5rem .5rem}
 }
 
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *{animation-duration:.001ms !important;transition-duration:.001ms !important}
   .polaroid:hover{transform:none}
+  .rep-ondas i{height:9px} /* sin animación, las barritas quedan quietas */
 }
 </style>
 
@@ -1000,6 +1064,20 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
     <p>Hecho a mano.</p>
   </div>
 </footer>
+
+<div class="reproductor" id="reproductor" hidden>
+  <audio id="audio" loop preload="none"></audio>
+  <button type="button" class="rep-boton" id="rep-boton" aria-pressed="false">
+    <span class="rep-icono" aria-hidden="true">
+      <svg class="rep-play" width="11" height="13" viewBox="0 0 11 13" fill="currentColor"><path d="M0 0l11 6.5L0 13z"/></svg>
+      <span class="rep-ondas"><i></i><i></i><i></i></span>
+    </span>
+    <span class="rep-texto">
+      <span class="rep-titulo" id="rep-titulo"></span>
+      <span class="rep-artista" id="rep-artista"></span>
+    </span>
+  </button>
+</div>
 
 <aside id="panel" hidden>
   <button class="panel-cabeza" id="panel-toggle" aria-expanded="true">
@@ -1359,6 +1437,72 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   $("#final-texto").textContent = fin.texto || "";
   $("#final-firma").textContent = fin.firma || "";
   $("#final").hidden = !fin.frase;
+
+  /* ── la canción ─────────────────────────────────────────────── */
+
+  const mus = CONFIG.musica || {};
+  if (mus.archivo) {
+    const rep = $("#reproductor"), audio = $("#audio"), boton = $("#rep-boton");
+    const titulo = $("#rep-titulo");
+    audio.src = mus.archivo;
+    titulo.textContent = mus.titulo || "Nuestra canción";
+    const subtitulo = mus.artista || "Tocá para escucharla";
+    $("#rep-artista").textContent = subtitulo;
+
+    /* si el mp3 todavía no está subido, ni aparece el botón */
+    fetch(mus.archivo, { method: "HEAD" })
+      .then((r) => { if (r.ok) rep.hidden = false; })
+      .catch(() => {});
+
+    const VOL = 0.55;
+    let rampa;
+
+    /* el iPhone no deja tocar el volumen por software: ahí no hay fundido */
+    audio.volume = 0.5;
+    const puedeFundir = Math.abs(audio.volume - 0.5) < 0.01;
+    audio.volume = puedeFundir ? 0 : 1;
+
+    const fundir = (hasta, paso, alLlegar) => {
+      clearInterval(rampa);
+      if (!puedeFundir) { if (alLlegar) alLlegar(); return; }
+      rampa = setInterval(() => {
+        const v = audio.volume + paso;
+        audio.volume = paso > 0 ? Math.min(hasta, v) : Math.max(0, v);
+        if ((paso > 0 && audio.volume >= hasta) || (paso < 0 && audio.volume <= 0)) {
+          clearInterval(rampa);
+          if (alLlegar) alLlegar();
+        }
+      }, 55);
+    };
+
+    const pintarEstado = (sonando) => {
+      rep.classList.toggle("sonando", sonando);
+      boton.setAttribute("aria-pressed", String(sonando));
+      boton.setAttribute("aria-label", (sonando ? "Pausar" : "Reproducir") + " " + titulo.textContent);
+    };
+
+    boton.addEventListener("click", () => {
+      rep.classList.add("tocado"); /* corta el latido de atención */
+      if (audio.paused) {
+        if (puedeFundir) audio.volume = 0;
+        audio.play().then(() => {
+          $("#rep-artista").textContent = subtitulo;
+          pintarEstado(true);
+          fundir(VOL, 0.045);
+        }).catch(() => {
+          /* el título de la canción no se pisa: el aviso va abajo */
+          $("#rep-artista").textContent = "Tocá de nuevo para escucharla";
+        });
+      } else {
+        fundir(0, -0.09, () => audio.pause());
+        pintarEstado(false);
+      }
+    });
+
+    audio.addEventListener("pause", () => pintarEstado(false));
+    audio.addEventListener("play", () => pintarEstado(true));
+    pintarEstado(false);
+  }
 
   /* ── panel de pendientes (solo en modo borrador) ────────────── */
 

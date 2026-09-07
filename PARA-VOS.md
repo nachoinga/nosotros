@@ -84,6 +84,25 @@ relleno, y el hilo se desvanece abajo, porque la historia sigue.
 
 El texto que tiene ahora lo escribí yo. Cambialo por lo tuyo.
 
+## La canción
+
+Va en el bloque `musica` del `CONFIG`. Ya está puesto **Puesto, de Babasónicos**.
+Lo único que falta es el archivo:
+
+1. Conseguí el mp3 y ponelo en la carpeta `musica/` con el nombre `puesto.mp3`.
+2. Listo. No hay que tocar nada más.
+
+Si el archivo no está, el botón directamente no aparece, así que la página
+nunca se ve rota.
+
+**No arranca sola, y no se puede arreglar.** Ningún navegador deja que una
+página empiece a sonar sin que la persona toque algo primero, y Safari en
+iPhone es el más estricto. Por eso hay un botón redondo abajo a la derecha,
+que late tres veces al abrir la página para que se note que hay música.
+
+Otro detalle del iPhone: si tiene puesto el switch de silencio, no se escucha
+aunque le dé play.
+
 ## Para verla
 
 Doble click en `index.html`. Se abre en el navegador.
