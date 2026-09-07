@@ -204,7 +204,19 @@ const CONFIG = {
   musica: {
     archivo: "musica/puesto.mp3",
     titulo: "Puesto",
-    artista: "Babasónicos"
+    artista: "Babasónicos",
+
+    // LA PORTADA: lo primero que ve, antes de la página.
+    // Es la única forma de que la canción arranque casi sola: toca el
+    // botón para entrar, y ese toque es lo que el navegador necesita
+    // para dejar sonar la música.
+    // Si no la querés, borrá el bloque portada entero.
+    portada: {
+      epigrafe: "Antes de empezar",
+      frase: "Esta canción da vueltas en mi cabeza cada vez que pienso en vos.",
+      boton: "Ponele play",
+      saltar: "entrar sin música"
+    }
   },
 
 
@@ -824,6 +836,59 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 }
 #panel.plegado .panel-cuerpo{display:none}
 
+/* ═══ LA PORTADA ══════════════════════════════════════════════════ */
+body.bloqueado{overflow:hidden}
+.portada{
+  position:fixed;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(1.5rem,4vw,2.25rem);
+  padding:2rem clamp(1.5rem,7vw,3rem);
+  text-align:center;
+  background:
+    radial-gradient(130% 100% at 50% -10%, var(--rosa-suave) 0%, transparent 62%),
+    var(--ground);
+  transition:opacity .8s ease, visibility .8s;
+}
+.portada.saliendo{opacity:0;visibility:hidden;pointer-events:none}
+.portada-corazon{color:var(--rosa-hondo);opacity:.55}
+.portada-epigrafe{
+  font-size:.6875rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--rosa-hondo);
+}
+.portada-frase{
+  font-family:var(--display);font-style:italic;font-weight:300;
+  font-size:clamp(1.7rem,6.8vw,3rem);
+  line-height:1.15;letter-spacing:-.01em;
+  max-width:19ch;text-wrap:balance;
+  color:var(--tinta);
+}
+.portada-play{
+  display:inline-flex;align-items:center;gap:.85rem;
+  padding:.55rem 1.5rem .6rem .55rem;
+  background:var(--rosa-hondo);color:var(--sobre-hondo);
+  border-radius:100px;
+  font-size:.9375rem;font-weight:700;
+  box-shadow:0 6px 26px -8px rgba(56,32,43,.5);
+  transition:filter .18s, transform .18s;
+}
+.portada-play:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.portada-play .circulo{
+  flex:none;width:2.35rem;height:2.35rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--sobre-hondo);color:var(--rosa-hondo);
+}
+.portada-play .circulo svg{margin-left:2px}
+.portada-tema{
+  font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--tinta-2);
+}
+.portada-tema b{color:var(--rosa-hondo);font-weight:700}
+.portada-saltar{
+  font-size:.8125rem;color:var(--tinta-2);
+  border-bottom:1px solid var(--linea-fuerte);padding-bottom:.1rem;
+}
+.portada-saltar:hover{color:var(--rosa-hondo);border-bottom-color:var(--rosa-claro)}
+
 /* ═══ LA CANCIÓN ══════════════════════════════════════════════════ */
 .reproductor{position:fixed;right:1rem;bottom:1rem;z-index:50}
 .rep-boton{
@@ -910,6 +975,19 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 }
 </style>
 
+
+<!-- ═══════════════════ PORTADA ═══════════════════ -->
+<div class="portada" id="portada" role="dialog" aria-modal="true" aria-labelledby="portada-frase" hidden>
+  <svg class="portada-corazon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-8.5-5.4-8.5-11A4.9 4.9 0 0 1 12 7a4.9 4.9 0 0 1 8.5 3c0 5.6-8.5 11-8.5 11z"/></svg>
+  <p class="portada-epigrafe" id="portada-epigrafe"></p>
+  <p class="portada-frase" id="portada-frase"></p>
+  <button type="button" class="portada-play" id="portada-play">
+    <span class="circulo" aria-hidden="true"><svg width="12" height="14" viewBox="0 0 11 13" fill="currentColor"><path d="M0 0l11 6.5L0 13z"/></svg></span>
+    <span id="portada-boton-texto"></span>
+  </button>
+  <p class="portada-tema" id="portada-tema"></p>
+  <button type="button" class="portada-saltar" id="portada-saltar"></button>
+</div>
 
 <!-- ═══════════════════ BARRA ═══════════════════ -->
 <nav class="barra">
@@ -1481,23 +1559,58 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
       boton.setAttribute("aria-label", (sonando ? "Pausar" : "Reproducir") + " " + titulo.textContent);
     };
 
-    boton.addEventListener("click", () => {
+    const reproducir = () => {
       rep.classList.add("tocado"); /* corta el latido de atención */
-      if (audio.paused) {
-        if (puedeFundir) audio.volume = 0;
-        audio.play().then(() => {
-          $("#rep-artista").textContent = subtitulo;
-          pintarEstado(true);
-          fundir(VOL, 0.045);
-        }).catch(() => {
-          /* el título de la canción no se pisa: el aviso va abajo */
-          $("#rep-artista").textContent = "Tocá de nuevo para escucharla";
-        });
-      } else {
-        fundir(0, -0.09, () => audio.pause());
-        pintarEstado(false);
-      }
+      if (puedeFundir) audio.volume = 0;
+      return audio.play().then(() => {
+        $("#rep-artista").textContent = subtitulo;
+        pintarEstado(true);
+        fundir(VOL, 0.045);
+      }).catch(() => {
+        /* el título de la canción no se pisa: el aviso va abajo */
+        $("#rep-artista").textContent = "Tocá de nuevo para escucharla";
+      });
+    };
+
+    const pausar = () => {
+      fundir(0, -0.09, () => audio.pause());
+      pintarEstado(false);
+    };
+
+    boton.addEventListener("click", () => {
+      if (audio.paused) reproducir(); else pausar();
     });
+
+    /* ── la portada ───────────────────────────────────────────── */
+    /* Acá está el truco: el mismo toque con el que entra a la página
+       es el gesto que el navegador necesita para dejar sonar el audio.
+       Por eso la canción arranca junto con la página, sin botón suelto. */
+    const port = mus.portada;
+    if (port && port.frase) {
+      const portada = $("#portada");
+      $("#portada-epigrafe").textContent = port.epigrafe || "";
+      $("#portada-frase").textContent = port.frase;
+      $("#portada-boton-texto").textContent = port.boton || "Ponele play";
+      $("#portada-tema").innerHTML =
+        "<b>" + esc(mus.titulo || "") + "</b>" + (mus.artista ? " · " + esc(mus.artista) : "");
+      $("#portada-saltar").textContent = port.saltar || "entrar sin música";
+      portada.hidden = false;
+      document.body.classList.add("bloqueado");
+
+      const entrar = (conMusica) => {
+        if (conMusica) reproducir();
+        portada.classList.add("saliendo");
+        document.body.classList.remove("bloqueado");
+        setTimeout(() => { portada.hidden = true; }, 900);
+      };
+
+      $("#portada-play").addEventListener("click", () => entrar(true));
+      $("#portada-saltar").addEventListener("click", () => entrar(false));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !portada.hidden) entrar(false);
+      });
+      requestAnimationFrame(() => $("#portada-play").focus());
+    }
 
     audio.addEventListener("pause", () => pintarEstado(false));
     audio.addEventListener("play", () => pintarEstado(true));

@@ -86,21 +86,40 @@ El texto que tiene ahora lo escribí yo. Cambialo por lo tuyo.
 
 ## La canción
 
-Va en el bloque `musica` del `CONFIG`. Ya está puesto **Puesto, de Babasónicos**.
-Lo único que falta es el archivo:
+**Puesto, de Babasónicos**, ya está subida y andando. Todo se maneja desde el
+bloque `musica` del `CONFIG`.
 
-1. Conseguí el mp3 y ponelo en la carpeta `musica/` con el nombre `puesto.mp3`.
-2. Listo. No hay que tocar nada más.
+### La portada
 
-Si el archivo no está, el botón directamente no aparece, así que la página
-nunca se ve rota.
+Lo primero que ve al abrir el link: una pantalla con la frase y un botón
+grande de play. Se edita en `musica > portada`:
 
-**No arranca sola, y no se puede arreglar.** Ningún navegador deja que una
-página empiece a sonar sin que la persona toque algo primero, y Safari en
-iPhone es el más estricto. Por eso hay un botón redondo abajo a la derecha,
-que late tres veces al abrir la página para que se note que hay música.
+    portada: {
+      epigrafe: "Antes de empezar",
+      frase:    "Esta canción da vueltas en mi cabeza cada vez que pienso en vos.",
+      boton:    "Ponele play",
+      saltar:   "entrar sin música"
+    }
 
-Otro detalle del iPhone: si tiene puesto el switch de silencio, no se escucha
+Acá está el truco: **ningún navegador deja que una página empiece a sonar
+sola**, hace falta que la persona toque algo primero. La portada convierte
+ese requisito en parte de la experiencia — el mismo toque con el que entra
+es el que hace arrancar la canción. Así la música empieza junto con la
+página, sin un botón suelto colgado por ahí.
+
+Si prefiere entrar en silencio, tiene el "entrar sin música" abajo. En ese
+caso el botón flotante queda latiendo para que lo toque cuando quiera.
+
+Si borrás el bloque `portada` entero, la página abre directo y queda solo el
+botón flotante.
+
+### Para cambiar la canción
+
+Poné el mp3 nuevo en `musica/`, escribí el nombre del archivo en `archivo` y
+cambiá `titulo` y `artista`. Si el archivo no existe, ni la portada ni el
+botón aparecen: la página nunca se ve rota.
+
+**Detalle del iPhone:** si tiene puesto el switch de silencio, no se escucha
 aunque le dé play.
 
 ## Para verla
