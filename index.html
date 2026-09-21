@@ -220,13 +220,43 @@ const CONFIG = {
   },
 
 
-  /* ── 8. MODO BORRADOR ───────────────────────────────────────────── */
+  /* ── 8. PRIMAVERA ───────────────────────────────────────────────── */
+  // true   → la página entera se pone amarilla, con flores de fondo, y
+  //          aparece la sección con el botón "Feliz primavera".
+  // false  → vuelven los rosas de siempre.
+  // "auto" → se enciende sola cada 21 de septiembre y se apaga al otro día.
+  //          Así el año que viene florece de nuevo sin que toques nada,
+  //          y va a decir "nuestra segunda primavera".
+
+  primavera: true,
+
+  primaveraTexto: {
+    epigrafe: "21 de septiembre",
+    // El título se arma solo: "Nuestra primera primavera juntos",
+    // y el año que viene pasa a "segunda".
+    texto: "Hoy empieza la primavera, y es la primera que pasamos juntos. Esta página también quería florecer.",
+    boton: "Feliz primavera",
+    despues: "Que sea la primera de muchas."
+  },
+
+
+  /* ── 9. MODO BORRADOR ───────────────────────────────────────────── */
   // true  → ves los pendientes y el panel que te dice qué falta.
   // false → se esconde todo lo que quedó sin completar. Ponelo en false
   //         antes de pasarle la página.
 
   modoBorrador: false
 };
+</script>
+
+<script>
+/* La primavera se decide acá, antes de que exista nada en pantalla,
+   para que no haya un parpadeo rosa antes del amarillo. */
+(() => {
+  const p = CONFIG.primavera, hoy = new Date();
+  const activa = p === true || (p === "auto" && hoy.getMonth() === 8 && hoy.getDate() === 21);
+  if (activa) document.documentElement.classList.add("primavera");
+})();
 </script>
 
 <style>
@@ -302,6 +332,58 @@ a{color:inherit}
   --rosa-hondo:#FF85AC;
   --rosa-fuerte:#FFAAC5;
   --sobre-hondo:#25101A;
+  --sombra:0 1px 1px rgba(0,0,0,.5), 0 16px 40px -24px rgba(0,0,0,.9);
+}
+
+/* ═══ PRIMAVERA: la misma página en amarillo ══════════════════════ */
+/* Los nombres siguen diciendo "rosa" porque todo el CSS los usa así;
+   acá solo cambia el color que hay adentro. Dos amarillos: uno claro
+   (--rosa-claro) y uno hondo, color miel (--rosa-hondo). */
+:root.primavera{
+  --ground:#FFFBEC;
+  --panel:#FFF3C7;
+  --surface:#FFFFFF;
+  --linea:#F2E3A3;
+  --linea-fuerte:#E6CF72;
+  --tinta:#3B2D0B;
+  --tinta-2:#7A6422;
+  --rosa-claro:#FFE070;
+  --rosa-suave:#FFF6D2;
+  --rosa-hondo:#A66F00;
+  --rosa-fuerte:#7D5300;
+  --sobre-hondo:#FFFBEC;
+  --sombra:0 1px 1px rgba(59,45,11,.04), 0 14px 34px -22px rgba(59,45,11,.5);
+}
+@media (prefers-color-scheme:dark){
+  :root.primavera:not([data-theme="light"]){
+    --ground:#181206;
+    --panel:#221A08;
+    --surface:#2B220C;
+    --linea:#3E3212;
+    --linea-fuerte:#54441A;
+    --tinta:#FFF6DC;
+    --tinta-2:#CBB57C;
+    --rosa-claro:#FFE070;
+    --rosa-suave:#33290E;
+    --rosa-hondo:#F5C842;
+    --rosa-fuerte:#FFD96E;
+    --sobre-hondo:#2A1F05;
+    --sombra:0 1px 1px rgba(0,0,0,.5), 0 16px 40px -24px rgba(0,0,0,.9);
+  }
+}
+:root.primavera[data-theme="dark"]{
+  --ground:#181206;
+  --panel:#221A08;
+  --surface:#2B220C;
+  --linea:#3E3212;
+  --linea-fuerte:#54441A;
+  --tinta:#FFF6DC;
+  --tinta-2:#CBB57C;
+  --rosa-claro:#FFE070;
+  --rosa-suave:#33290E;
+  --rosa-hondo:#F5C842;
+  --rosa-fuerte:#FFD96E;
+  --sobre-hondo:#2A1F05;
   --sombra:0 1px 1px rgba(0,0,0,.5), 0 16px 40px -24px rgba(0,0,0,.9);
 }
 
@@ -929,6 +1011,69 @@ body.bloqueado{overflow:hidden}
 .reproductor:not(.sonando):not(.tocado) .rep-boton{animation:latido 2.4s ease-in-out 2s 3}
 @keyframes latido{0%,100%{transform:scale(1)}50%{transform:scale(1.055)}}
 
+/* ═══ PRIMAVERA: el jardín de fondo ═══════════════════════════════ */
+/* Un lienzo fijo detrás de todo. Las secciones de fondo liso son
+   transparentes, así que las flores se ven a través; las franjas se
+   vuelven un poco translúcidas para que también asomen. */
+#jardin{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:none}
+.primavera #jardin{display:block}
+.primavera section,.primavera .heroe,.primavera footer,.primavera .ornamento{position:relative;z-index:1}
+.primavera .franja{
+  background:var(--panel);
+  background:color-mix(in srgb, var(--panel) 84%, transparent);
+}
+
+/* ═══ PRIMAVERA: la sección ═══════════════════════════════════════ */
+.primavera-caja{
+  display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(2rem,5vw,4rem);
+  align-items:center;
+}
+.prim-boton{
+  display:inline-flex;align-items:center;gap:.65rem;
+  margin-top:1.75rem;
+  padding:.75rem 1.6rem .8rem 1.25rem;
+  background:var(--rosa-hondo);color:var(--sobre-hondo);
+  border-radius:100px;
+  font-size:1rem;font-weight:700;
+  box-shadow:0 8px 28px -10px rgba(59,45,11,.55);
+  transition:transform .18s, filter .18s, opacity .5s;
+}
+.prim-boton:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.prim-boton svg{flex:none}
+.prim-boton.usado{opacity:0;pointer-events:none}
+.prim-despues{
+  margin-top:1.5rem;
+  font-family:var(--mano);
+  font-size:clamp(1.5rem,3.6vw,1.9rem);
+  line-height:1.2;
+  color:var(--rosa-hondo);
+  animation:aparecer .9s ease both;
+}
+@keyframes aparecer{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* la flor: todo arranca escondido y brota al hacer click */
+.flor-marco{display:flex;justify-content:center;align-items:flex-end;min-height:16rem}
+.flor{width:min(100%,15rem);height:auto;overflow:visible}
+.flor .tierra{fill:var(--rosa-claro);opacity:.55}
+.flor .tallo{
+  fill:none;stroke:var(--rosa-hondo);stroke-width:4;stroke-linecap:round;
+  stroke-dasharray:150;stroke-dashoffset:150;
+}
+.flor .hoja{fill:var(--rosa-hondo);opacity:.85;transform:scale(0);transform-box:fill-box;transform-origin:100% 100%}
+.flor .petalo{fill:var(--rosa-claro);transform:scale(0);transform-box:fill-box;transform-origin:50% 100%}
+.flor .centro{fill:var(--rosa-hondo);transform:scale(0);transform-box:fill-box;transform-origin:50% 50%}
+
+.florecida .tallo{animation:crecerTallo .9s ease-out forwards}
+.florecida .hoja-1{animation:brotar .6s cubic-bezier(.34,1.4,.64,1) .55s forwards}
+.florecida .hoja-2{animation:brotar .6s cubic-bezier(.34,1.4,.64,1) .7s forwards}
+.florecida .petalo{
+  animation:brotar .65s cubic-bezier(.34,1.5,.64,1) forwards;
+  animation-delay:calc(.95s + var(--i) * .08s);
+}
+.florecida .centro{animation:brotar .5s cubic-bezier(.34,1.5,.64,1) 1.6s forwards}
+@keyframes crecerTallo{to{stroke-dashoffset:0}}
+@keyframes brotar{to{transform:scale(1)}}
+
 /* ═══ TELÉFONO ════════════════════════════════════════════════════ */
 /* Medido sobre un iPhone 13: 390 × 844 px */
 @media (max-width:520px){
@@ -962,6 +1107,11 @@ body.bloqueado{overflow:hidden}
   .polaroid{padding:.45rem .45rem 0}
   .polaroid .pie{font-size:1rem;padding:.6rem .15rem .8rem;line-height:1.15}
 
+  /* primavera: texto arriba, flor abajo */
+  .primavera-caja{grid-template-columns:1fr;gap:1rem}
+  .flor-marco{min-height:13rem}
+  .flor{width:min(100%,12rem)}
+
   /* el reproductor, más chico y donde llega el pulgar */
   .reproductor{right:.75rem;bottom:.75rem}
   .rep-boton{max-width:calc(100vw - 1.5rem);padding:.45rem .95rem .5rem .5rem}
@@ -971,7 +1121,10 @@ body.bloqueado{overflow:hidden}
   html{scroll-behavior:auto}
   *{animation-duration:.001ms !important;transition-duration:.001ms !important}
   .polaroid:hover{transform:none}
-  .rep-ondas i{height:9px} /* sin animación, las barritas quedan quietas */
+  .rep-ondas i{height:9px} /* sin animación, las barritas quedan quietas */  /* la flor aparece entera, sin brotar de a poco */
+  .florecida .tallo{animation:none;stroke-dashoffset:0}
+  .florecida .hoja,.florecida .petalo,.florecida .centro{animation:none;transform:scale(1)}
+
 }
 </style>
 
@@ -988,6 +1141,8 @@ body.bloqueado{overflow:hidden}
   <p class="portada-tema" id="portada-tema"></p>
   <button type="button" class="portada-saltar" id="portada-saltar"></button>
 </div>
+
+<canvas id="jardin" aria-hidden="true"></canvas>
 
 <!-- ═══════════════════ BARRA ═══════════════════ -->
 <nav class="barra">
@@ -1017,6 +1172,43 @@ body.bloqueado{overflow:hidden}
     <p><span class="chapa" id="chapa"><span class="punto"></span><span id="chapa-texto">—</span></span></p>
   </div>
 </header>
+
+<!-- ═══════════════════ PRIMAVERA ═══════════════════ -->
+<section class="franja" id="primavera" hidden>
+  <div class="envoltura primavera-caja">
+    <div>
+      <p class="rotulo" id="prim-epigrafe"></p>
+      <h2 class="titulo" id="prim-titulo"></h2>
+      <p class="entrada" id="prim-texto"></p>
+      <p>
+        <button type="button" class="prim-boton" id="prim-boton">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><ellipse cx="12" cy="5" rx="2.6" ry="4"/><ellipse cx="12" cy="19" rx="2.6" ry="4"/><ellipse cx="5" cy="12" rx="4" ry="2.6"/><ellipse cx="19" cy="12" rx="4" ry="2.6"/><ellipse cx="7" cy="7" rx="2.6" ry="4" transform="rotate(-45 7 7)"/><ellipse cx="17" cy="17" rx="2.6" ry="4" transform="rotate(-45 17 17)"/><ellipse cx="17" cy="7" rx="2.6" ry="4" transform="rotate(45 17 7)"/><ellipse cx="7" cy="17" rx="2.6" ry="4" transform="rotate(45 7 17)"/></svg>
+          <span id="prim-boton-texto"></span>
+        </button>
+      </p>
+      <p class="prim-despues" id="prim-despues" hidden></p>
+    </div>
+    <div class="flor-marco" id="flor-marco" aria-hidden="true">
+      <svg class="flor" viewBox="0 0 200 270" width="200" height="270">
+        <ellipse class="tierra" cx="100" cy="258" rx="46" ry="7"/>
+        <path class="tallo" d="M100 256 C 100 215, 100 175, 100 118"/>
+        <g transform="translate(100 212)"><path class="hoja hoja-1" d="M0 0 C -30 -4, -47 -24, -42 -46 C -20 -42, -5 -22, 0 0 Z"/></g>
+        <g transform="translate(100 186) scale(-1 1)"><path class="hoja hoja-2" d="M0 0 C -30 -4, -47 -24, -42 -46 C -20 -42, -5 -22, 0 0 Z"/></g>
+        <g transform="translate(100 114)">
+      <g transform="rotate(0)"><path class="petalo" style="--i:0" d="M0 0 C 15 -18, 15 -48, 0 -64 C -15 -48, -15 -18, 0 0 Z"/></g>
+      <g transform="rotate(45)"><path class="petalo" style="--i:1" d="M0 0 C 15 -18, 15 -48, 0 -64 C -15 -48, -15 -18, 0 0 Z"/></g>
+      <g transform="rotate(90)"><path class="petalo" style="--i:2" d="M0 0 C 15 -18, 15 -48, 0 -64 C -15 -48, -15 -18, 0 0 Z"/></g>
+      <g transform="rotate(135)"><path class="petalo" style="--i:3" d="M0 0 C 15 -18, 15 -48, 0 -64 C -15 -48, -15 -18, 0 0 Z"/></g>
+      <g transform="rotate(180)"><path class="petalo" style="--i:4" d="M0 0 C 15 -18, 15 -48, 0 -64 C -15 -48, -15 -18, 0 0 Z"/></g>
+      <g transform="rotate(225)"><path class="petalo" style="--i:5" d="M0 0 C 15 -18, 15 -48, 0 -64 C -15 -48, -15 -18, 0 0 Z"/></g>
+      <g transform="rotate(270)"><path class="petalo" style="--i:6" d="M0 0 C 15 -18, 15 -48, 0 -64 C -15 -48, -15 -18, 0 0 Z"/></g>
+      <g transform="rotate(315)"><path class="petalo" style="--i:7" d="M0 0 C 15 -18, 15 -48, 0 -64 C -15 -48, -15 -18, 0 0 Z"/></g>
+        </g>
+        <circle class="centro" cx="100" cy="114" r="15"/>
+      </svg>
+    </div>
+  </div>
+</section>
 
 <!-- ═══════════════════ CONTADOR ═══════════════════ -->
 <section id="contador">
@@ -1515,6 +1707,140 @@ body.bloqueado{overflow:hidden}
   $("#final-texto").textContent = fin.texto || "";
   $("#final-firma").textContent = fin.firma || "";
   $("#final").hidden = !fin.frase;
+
+  /* ── primavera ──────────────────────────────────────────────── */
+
+  const PRIMAVERA = document.documentElement.classList.contains("primavera");
+  const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let soltarPetalos = null;
+
+  /* el jardín de fondo */
+  const jardin = $("#jardin");
+  if (PRIMAVERA && jardin.getContext) {
+    const ctx = jardin.getContext("2d");
+    let w = 0, h = 0, flores = [], sueltos = [], corriendo = false, t = 0;
+
+    const medir = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth; h = window.innerHeight;
+      jardin.width = w * dpr; jardin.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const sembrar = () => {
+      const n = w < 640 ? 16 : Math.min(48, Math.round((w * h) / 40000));
+      flores = Array.from({ length: n }, () => ({
+        fx: Math.random(), fy: Math.random(),
+        r: 9 + Math.random() * 16,
+        a: Math.random() * Math.PI * 2,
+        fase: Math.random() * Math.PI * 2,
+        op: .16 + Math.random() * .2,
+        n: Math.random() < .35 ? 6 : 5
+      }));
+    };
+
+    const colores = () => {
+      const cs = getComputedStyle(document.documentElement);
+      return {
+        petalo: cs.getPropertyValue("--rosa-claro").trim() || "#FFE070",
+        centro: cs.getPropertyValue("--rosa-hondo").trim() || "#A66F00"
+      };
+    };
+
+    const flor = (x, y, r, a, n, op, c) => {
+      ctx.save();
+      ctx.translate(x, y); ctx.rotate(a); ctx.globalAlpha = op;
+      ctx.fillStyle = c.petalo;
+      for (let i = 0; i < n; i++) {
+        ctx.beginPath();
+        ctx.ellipse(0, -r * .55, r * .32, r * .55, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.rotate((Math.PI * 2) / n);
+      }
+      ctx.fillStyle = c.centro;
+      ctx.beginPath(); ctx.arc(0, 0, r * .26, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    };
+
+    const cuadro = () => {
+      ctx.clearRect(0, 0, w, h);
+      const c = colores();
+      for (const f of flores) {
+        const vaiven = sinMovimiento ? 0 : Math.sin(t * .012 + f.fase) * .07;
+        flor(f.fx * w, f.fy * h, f.r, f.a + vaiven, f.n, f.op, c);
+      }
+      sueltos = sueltos.filter((p) => p.vida > 0);
+      for (const p of sueltos) {
+        p.x += p.vx; p.y += p.vy; p.vy += .07; p.vx *= .985; p.a += p.giro; p.vida -= .011;
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(p.a);
+        ctx.globalAlpha = Math.max(0, p.vida) * .9;
+        ctx.fillStyle = c.petalo;
+        ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * .55, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+      t++;
+      if (sinMovimiento && !sueltos.length) { corriendo = false; return; }
+      requestAnimationFrame(cuadro);
+    };
+
+    const arrancar = () => { if (!corriendo) { corriendo = true; requestAnimationFrame(cuadro); } };
+
+    /* la lluvia de pétalos cuando florece */
+    soltarPetalos = (x, y) => {
+      if (sinMovimiento) return;
+      for (let i = 0; i < 70; i++) {
+        const ang = Math.random() * Math.PI * 2, fuerza = 2 + Math.random() * 7;
+        sueltos.push({
+          x, y,
+          vx: Math.cos(ang) * fuerza, vy: Math.sin(ang) * fuerza - 4,
+          r: 4 + Math.random() * 6, a: Math.random() * Math.PI,
+          giro: (Math.random() - .5) * .25, vida: 1 + Math.random() * .5
+        });
+      }
+      arrancar();
+    };
+
+    medir(); sembrar(); arrancar();
+    let esperaJardin;
+    window.addEventListener("resize", () => {
+      clearTimeout(esperaJardin);
+      esperaJardin = setTimeout(() => { medir(); arrancar(); }, 180);
+    });
+  }
+
+  /* la sección con el botón */
+  if (PRIMAVERA) {
+    const pt = CONFIG.primaveraTexto || {};
+    const ORD = ["", "primera", "segunda", "tercera", "cuarta", "quinta",
+                 "sexta", "séptima", "octava", "novena", "décima"];
+    const hoy = new Date();
+    let cuantas = 0;
+    for (let y = INICIO.getFullYear(); y <= hoy.getFullYear(); y++) {
+      const p = new Date(y, 8, 21);
+      if (p >= INICIO && p <= hoy) cuantas++;
+    }
+    if (cuantas === 0) cuantas = 1; /* si se enciende antes del 21, es la que viene */
+    const ord = ORD[cuantas] || cuantas + "ª";
+
+    $("#prim-epigrafe").textContent = pt.epigrafe || "21 de septiembre";
+    $("#prim-titulo").innerHTML = "Nuestra <em>" + ord + " primavera</em> juntos";
+    $("#prim-texto").textContent = pt.texto || "";
+    $("#prim-boton-texto").textContent = pt.boton || "Feliz primavera";
+    $("#prim-despues").textContent = pt.despues || "";
+    $("#primavera").hidden = false;
+
+    const btn = $("#prim-boton"), marco = $("#flor-marco");
+    btn.addEventListener("click", () => {
+      marco.classList.add("florecida");
+      btn.classList.add("usado");
+      btn.disabled = true;
+      setTimeout(() => { btn.parentElement.hidden = true; }, 520); /* que no quede el hueco */
+      const r = marco.getBoundingClientRect();
+      if (soltarPetalos) soltarPetalos(r.x + r.width / 2, r.y + r.height * .42);
+      setTimeout(() => { $("#prim-despues").hidden = false; }, sinMovimiento ? 0 : 1500);
+    }, { once: true });
+  }
 
   /* ── la canción ─────────────────────────────────────────────── */
 

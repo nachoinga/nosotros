@@ -122,6 +122,25 @@ botón aparecen: la página nunca se ve rota.
 **Detalle del iPhone:** si tiene puesto el switch de silencio, no se escucha
 aunque le dé play.
 
+## El modo primavera
+
+Se maneja con `primavera` en el `CONFIG`:
+
+- `true` → la página entera se pone amarilla (dos amarillos: uno claro y uno
+  color miel), aparece un jardín de flores de fondo, y arriba del contador
+  sale la sección "Nuestra primera primavera juntos" con el botón
+  **Feliz primavera**. Al tocarlo brota una flor y llueven pétalos.
+- `false` → vuelven los rosas de siempre, tal cual estaban.
+- `"auto"` → se enciende sola cada 21 de septiembre y se apaga al día
+  siguiente. El año que viene florece de nuevo sin que toques nada, y el
+  título pasa solo a "Nuestra **segunda** primavera juntos".
+
+Los textos están en `primaveraTexto`. El título no se escribe: se calcula
+contando cuántos 21 de septiembre pasaron desde el 10 de marzo de 2026.
+
+Ahora está en `true`. Cuando quieras volver a los rosas, ponelo en `false`
+o en `"auto"`.
+
 ## Para verla
 
 Doble click en `index.html`. Se abre en el navegador.
