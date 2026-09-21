@@ -138,6 +138,17 @@ Se maneja con `primavera` en el `CONFIG`:
 Los textos están en `primaveraTexto`. El título no se escribe: se calcula
 contando cuántos 21 de septiembre pasaron desde el 10 de marzo de 2026.
 
+Qué puede hacer ella en primavera:
+
+- **Feliz primavera** hace brotar la flor grande. Después el botón pasa a
+  **Plantá otra** y cada toque suma una flor más chica al cantero, hasta 14.
+  Ahí dice "Ya es un jardín".
+- **Tocar en cualquier lado de la página** planta una flor justo ahí, con un
+  pop. Abajo de la sección se lleva la cuenta: "Plantaste N flores hoy".
+- La portada de hoy dice otra frase (`primaveraMusica > frase`): "Hoy es un
+  día especial, y esta canción te la dedico a vos." Al apagar la primavera
+  vuelve la de siempre.
+
 Mientras está encendido suena **Flores Amarillas** (bloque `primaveraMusica`)
 en vez de Puesto. Al apagarlo vuelve Puesto sola, no hay que tocar nada.
 
