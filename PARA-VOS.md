@@ -138,6 +138,9 @@ Se maneja con `primavera` en el `CONFIG`:
 Los textos están en `primaveraTexto`. El título no se escribe: se calcula
 contando cuántos 21 de septiembre pasaron desde el 10 de marzo de 2026.
 
+Mientras está encendido suena **Flores Amarillas** (bloque `primaveraMusica`)
+en vez de Puesto. Al apagarlo vuelve Puesto sola, no hay que tocar nada.
+
 Ahora está en `true`. Cuando quieras volver a los rosas, ponelo en `false`
 o en `"auto"`.
 

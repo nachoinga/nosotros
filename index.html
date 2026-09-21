@@ -230,6 +230,16 @@ const CONFIG = {
 
   primavera: true,
 
+  // Mientras la primavera esté encendida suena ESTA en vez de la de arriba.
+  // Al apagarla vuelve Puesto sola. Si querés otra frase en la portada solo
+  // para hoy, escribila en "frase"; vacía, queda la de siempre.
+  primaveraMusica: {
+    archivo: "musica/flores-amarillas.mp3",
+    titulo: "Flores Amarillas",
+    artista: "Floricienta",
+    frase: ""
+  },
+
   primaveraTexto: {
     epigrafe: "21 de septiembre",
     // El título se arma solo: "Nuestra primera primavera juntos",
@@ -1844,7 +1854,15 @@ body.bloqueado{overflow:hidden}
 
   /* ── la canción ─────────────────────────────────────────────── */
 
-  const mus = CONFIG.musica || {};
+  /* en primavera suena la canción de primavera; el resto queda igual */
+  const mus = Object.assign({}, CONFIG.musica || {});
+  const musPrim = CONFIG.primaveraMusica;
+  if (PRIMAVERA && musPrim && musPrim.archivo) {
+    mus.archivo = musPrim.archivo;
+    mus.titulo = musPrim.titulo || mus.titulo;
+    mus.artista = musPrim.artista || mus.artista;
+    if (musPrim.frase && mus.portada) mus.portada = Object.assign({}, mus.portada, { frase: musPrim.frase });
+  }
   if (mus.archivo) {
     const rep = $("#reproductor"), audio = $("#audio"), boton = $("#rep-boton");
     const titulo = $("#rep-titulo");
