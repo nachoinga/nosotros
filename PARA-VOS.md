@@ -124,7 +124,13 @@ aunque le dé play.
 
 ## El modo primavera
 
-Se maneja con `primavera` en el `CONFIG`:
+**Arriba, en la barra, hay un botón para alternar rosa ⇄ primavera.** Ella lo
+toca y cambia todo en el momento, sin recargar: colores, flores, la sección,
+y hasta la canción (si estaba sonando una, sigue con la otra). Lo que elija
+se recuerda **solo por ese día**; al día siguiente la página vuelve a
+arrancar como diga el `CONFIG`.
+
+`primavera` en el `CONFIG` decide cómo arranca cada día:
 
 - `true` → la página entera se pone amarilla (dos amarillos: uno claro y uno
   color miel), aparece un jardín de flores de fondo, y arriba del contador
@@ -152,8 +158,9 @@ Qué puede hacer ella en primavera:
 Mientras está encendido suena **Flores Amarillas** (bloque `primaveraMusica`)
 en vez de Puesto. Al apagarlo vuelve Puesto sola, no hay que tocar nada.
 
-Ahora está en `true`. Cuando quieras volver a los rosas, ponelo en `false`
-o en `"auto"`.
+Está en `"auto"`: hoy 21 de septiembre arranca en primavera, mañana arranca
+en rosa, y el 21 de septiembre del año que viene florece de nuevo sola. El
+botón de arriba queda siempre disponible para encenderla cualquier día.
 
 ## Para verla
 

@@ -221,14 +221,16 @@ const CONFIG = {
 
 
   /* ── 8. PRIMAVERA ───────────────────────────────────────────────── */
-  // true   → la página entera se pone amarilla, con flores de fondo, y
-  //          aparece la sección con el botón "Feliz primavera".
-  // false  → vuelven los rosas de siempre.
-  // "auto" → se enciende sola cada 21 de septiembre y se apaga al otro día.
-  //          Así el año que viene florece de nuevo sin que toques nada,
-  //          y va a decir "nuestra segunda primavera".
+  // Esto decide CÓMO ARRANCA la página cada día. Arriba, en la barra, hay
+  // un botón para alternar entre rosa y primavera cuando ella quiera; lo
+  // que elija se recuerda solo por ese día, y al otro día vuelve a esto:
+  //
+  // "auto" → arranca en primavera solo el 21 de septiembre (hoy) y en rosa
+  //          el resto del año. El año que viene florece de nuevo sola.
+  // true   → arranca siempre en primavera.
+  // false  → arranca siempre en rosa.
 
-  primavera: true,
+  primavera: "auto",
 
   // Mientras la primavera esté encendida suena ESTA en vez de la de arriba.
   // Al apagarla vuelve Puesto sola. Si querés otra frase en la portada solo
@@ -270,7 +272,13 @@ const CONFIG = {
    para que no haya un parpadeo rosa antes del amarillo. */
 (() => {
   const p = CONFIG.primavera, hoy = new Date();
-  const activa = p === true || (p === "auto" && hoy.getMonth() === 8 && hoy.getDate() === 21);
+  const diaHoy = hoy.getFullYear() + "-" + (hoy.getMonth() + 1) + "-" + hoy.getDate();
+  let activa = p === true || (p === "auto" && hoy.getMonth() === 8 && hoy.getDate() === 21);
+  /* si hoy ya tocó el botón, se respeta lo que eligió (solo por hoy) */
+  try {
+    const guardado = JSON.parse(localStorage.getItem("modo-primavera") || "null");
+    if (guardado && guardado.dia === diaHoy) activa = guardado.activa;
+  } catch (e) {}
   if (activa) document.documentElement.classList.add("primavera");
 })();
 </script>
@@ -470,6 +478,27 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   font-family:var(--texto);font-size:.8125rem;font-weight:700;
   font-variant-numeric:tabular-nums;
   color:var(--rosa-hondo);
+}
+/* el botón para alternar rosa / primavera */
+.barra-modo{
+  display:inline-flex;align-items:center;gap:.45rem;
+  margin-left:auto;margin-right:1.25rem;
+  padding:.35rem .85rem .4rem .7rem;
+  border:1px solid var(--linea-fuerte);border-radius:100px;
+  background:var(--surface);
+  font-size:.75rem;font-weight:700;letter-spacing:.02em;
+  color:var(--rosa-hondo);
+  white-space:nowrap;
+  transition:background .18s, border-color .18s, transform .18s;
+}
+.barra-modo:hover{border-color:var(--rosa-claro);transform:translateY(-1px)}
+.barra-modo .solo-rosa{color:#E4B400}          /* la florcita, aunque estemos en rosa */
+.barra-modo .solo-primavera{color:#D6336C}     /* el corazón, aunque estemos en amarillo */
+@media (max-width:520px){
+  .barra-modo{margin-right:0;padding:.35rem .7rem .4rem .6rem;font-size:.6875rem}
+  .barra-modo span{display:none}                /* en el celu queda solo el ícono */
+  .barra-modo{padding:.55rem .7rem;min-height:2.4rem}  /* cómodo para el pulgar */
+  .barra-modo svg{width:15px;height:15px}
 }
 .barra-nav{display:flex;gap:1.4rem}
 .barra-nav a{
@@ -1237,6 +1266,11 @@ body.bloqueado{overflow:hidden}
       <span>10 de marzo</span>
       <b id="mini-contador">—</b>
     </div>
+    <button type="button" class="barra-modo" id="boton-modo" aria-pressed="false">
+      <svg class="solo-rosa" width="13" height="13" fill="currentColor" aria-hidden="true"><use href="#flor-icono"/></svg>
+      <svg class="solo-primavera" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-8.5-5.4-8.5-11A4.9 4.9 0 0 1 12 7a4.9 4.9 0 0 1 8.5 3c0 5.6-8.5 11-8.5 11z"/></svg>
+      <span id="boton-modo-texto">Modo primavera</span>
+    </button>
     <div class="barra-nav">
       <a href="#contador">El tiempo</a>
       <a href="#historia">Historia</a>
@@ -1815,13 +1849,16 @@ body.bloqueado{overflow:hidden}
 
   /* ── primavera ──────────────────────────────────────────────── */
 
-  const PRIMAVERA = document.documentElement.classList.contains("primavera");
+  let PRIMAVERA = document.documentElement.classList.contains("primavera");
   const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let soltarPetalos = null, plantarFlor = null;
+  let soltarPetalos = null, plantarFlor = null, reanudarJardin = null, cambiarCancion = null;
 
   /* el jardín de fondo */
   const jardin = $("#jardin");
-  if (PRIMAVERA && jardin.getContext) {
+  let jardinListo = false;
+  const iniciarJardin = () => {
+    if (jardinListo || !jardin.getContext) return;
+    jardinListo = true;
     const ctx = jardin.getContext("2d");
     let w = 0, h = 0, flores = [], sueltos = [], plantadas = [], corriendo = false, t = 0;
 
@@ -1893,7 +1930,7 @@ body.bloqueado{overflow:hidden}
       }
       t++;
       const naciendo = plantadas.some((f) => ahoraMs - f.nac < 700);
-      if (sinMovimiento && !sueltos.length && !naciendo) { corriendo = false; return; }
+      if (!PRIMAVERA || (sinMovimiento && !sueltos.length && !naciendo)) { corriendo = false; return; }
       requestAnimationFrame(cuadro);
     };
 
@@ -1926,15 +1963,19 @@ body.bloqueado{overflow:hidden}
     };
 
     medir(); sembrar(); arrancar();
+    reanudarJardin = arrancar;
     let esperaJardin;
     window.addEventListener("resize", () => {
       clearTimeout(esperaJardin);
       esperaJardin = setTimeout(() => { medir(); arrancar(); }, 180);
     });
-  }
+  };
 
-  /* la sección con el botón */
-  if (PRIMAVERA) {
+  /* la sección con el botón: también se arma una sola vez */
+  let seccionLista = false;
+  const iniciarSeccion = () => {
+    if (seccionLista) return;
+    seccionLista = true;
     const pt = CONFIG.primaveraTexto || {};
     const ORD = ["", "primera", "segunda", "tercera", "cuarta", "quinta",
                  "sexta", "séptima", "octava", "novena", "décima"];
@@ -2010,7 +2051,7 @@ body.bloqueado{overflow:hidden}
     const NO_PLANTAR = "a, button, input, select, textarea, label, summary, " +
       ".portada, .reproductor, #panel, .selector, .polaroid, .cinta-scroll, .barra";
     document.addEventListener("click", (e) => {
-      if (!plantarFlor) return;
+      if (!PRIMAVERA || !plantarFlor) return;
       if (e.target.closest(NO_PLANTAR)) return;
       if (!$("#portada").hidden) return;
       const n = plantarFlor(e.clientX, e.clientY);
@@ -2020,25 +2061,64 @@ body.bloqueado{overflow:hidden}
         .replace("{flores}", n === 1 ? "flor" : "flores");
       plantadasEl.hidden = false;
     });
-  }
+  };
+
+  /* ── el botón de arriba: rosa ⇄ primavera, sin recargar ───────── */
+  const botonModo = $("#boton-modo");
+  const pintarBotonModo = () => {
+    botonModo.setAttribute("aria-pressed", String(PRIMAVERA));
+    $("#boton-modo-texto").textContent = PRIMAVERA ? "Modo rosa" : "Modo primavera";
+    botonModo.title = PRIMAVERA ? "Volver a los rosas" : "Poner la página en primavera";
+  };
+
+  const aplicarModo = (activo) => {
+    PRIMAVERA = activo;
+    document.documentElement.classList.toggle("primavera", activo);
+    if (activo) {
+      iniciarJardin();
+      iniciarSeccion();
+      if (reanudarJardin) reanudarJardin();
+    }
+    $("#primavera").hidden = !activo;
+    armarCinta();                 /* la flor del 21 de septiembre va y viene */
+    if (cambiarCancion) cambiarCancion(activo);
+    pintarBotonModo();
+    /* se recuerda solo por hoy: mañana vuelve a arrancar como diga el CONFIG */
+    try {
+      const hoy = new Date();
+      localStorage.setItem("modo-primavera", JSON.stringify({
+        dia: hoy.getFullYear() + "-" + (hoy.getMonth() + 1) + "-" + hoy.getDate(),
+        activa: activo
+      }));
+    } catch (e) {}
+  };
+
+  botonModo.addEventListener("click", () => aplicarModo(!PRIMAVERA));
+
+  if (PRIMAVERA) { iniciarJardin(); iniciarSeccion(); }
+  pintarBotonModo();
 
   /* ── la canción ─────────────────────────────────────────────── */
 
   /* en primavera suena la canción de primavera; el resto queda igual */
-  const mus = Object.assign({}, CONFIG.musica || {});
-  const musPrim = CONFIG.primaveraMusica;
-  if (PRIMAVERA && musPrim && musPrim.archivo) {
-    mus.archivo = musPrim.archivo;
-    mus.titulo = musPrim.titulo || mus.titulo;
-    mus.artista = musPrim.artista || mus.artista;
-    if (musPrim.frase && mus.portada) mus.portada = Object.assign({}, mus.portada, { frase: musPrim.frase });
-  }
+  const elegirMusica = (prim) => {
+    const m = Object.assign({}, CONFIG.musica || {});
+    const mp = CONFIG.primaveraMusica;
+    if (prim && mp && mp.archivo) {
+      m.archivo = mp.archivo;
+      m.titulo = mp.titulo || m.titulo;
+      m.artista = mp.artista || m.artista;
+      if (mp.frase && m.portada) m.portada = Object.assign({}, m.portada, { frase: mp.frase });
+    }
+    return m;
+  };
+  const mus = elegirMusica(PRIMAVERA);
   if (mus.archivo) {
     const rep = $("#reproductor"), audio = $("#audio"), boton = $("#rep-boton");
     const titulo = $("#rep-titulo");
     audio.src = mus.archivo;
     titulo.textContent = mus.titulo || "Nuestra canción";
-    const subtitulo = mus.artista || "Tocá para escucharla";
+    let subtitulo = mus.artista || "Tocá para escucharla";
     $("#rep-artista").textContent = subtitulo;
 
     /* si el mp3 todavía no está subido, ni aparece el botón */
@@ -2094,6 +2174,23 @@ body.bloqueado{overflow:hidden}
     boton.addEventListener("click", () => {
       if (audio.paused) reproducir(); else pausar();
     });
+
+    /* al cambiar de modo cambia la canción; si estaba sonando, sigue con la otra */
+    cambiarCancion = (prim) => {
+      const nueva = elegirMusica(prim);
+      if (!nueva.archivo || nueva.archivo === audio.getAttribute("src")) return;
+      const estabaSonando = !audio.paused;
+      const cambiar = () => {
+        audio.pause();
+        audio.src = nueva.archivo;
+        titulo.textContent = nueva.titulo || "Nuestra canción";
+        subtitulo = nueva.artista || "Tocá para escucharla";
+        $("#rep-artista").textContent = subtitulo;
+        pintarEstado(false);
+        if (estabaSonando) reproducir();
+      };
+      if (estabaSonando) fundir(0, -0.12, cambiar); else cambiar();
+    };
 
     /* ── la portada ───────────────────────────────────────────── */
     /* Acá está el truco: el mismo toque con el que entra a la página
