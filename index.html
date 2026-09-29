@@ -220,7 +220,24 @@ const CONFIG = {
   },
 
 
-  /* ── 8. PRIMAVERA ───────────────────────────────────────────────── */
+  /* ── 8. SUBIR FOTOS (Cloudinary) ─────────────────────────────────── */
+  // Para que los dos puedan agregar fotos desde el celular y queden
+  // guardadas para siempre. Mientras cloudName esté vacío, el botón de
+  // subir ni aparece y la galería funciona como hasta ahora.
+  //
+  // Los tres datos salen del panel de cloudinary.com:
+  //   cloudName → figura arriba de todo en el panel
+  //   preset    → Settings > Upload > Upload presets (en modo "Unsigned")
+  //   etiqueta  → la inventás vos; con eso se guardan y se buscan
+
+  nube: {
+    cloudName: "",
+    preset: "nosotros",
+    etiqueta: "nosotros"
+  },
+
+
+  /* ── 9. PRIMAVERA ───────────────────────────────────────────────── */
   // Esto decide CÓMO ARRANCA la página cada día. Arriba, en la barra, hay
   // un botón para alternar entre rosa y primavera cuando ella quiera; lo
   // que elija se recuerda solo por ese día, y al otro día vuelve a esto:
@@ -258,7 +275,7 @@ const CONFIG = {
   },
 
 
-  /* ── 9. MODO BORRADOR ───────────────────────────────────────────── */
+  /* ── 10. MODO BORRADOR ───────────────────────────────────────────── */
   // true  → ves los pendientes y el panel que te dice qué falta.
   // false → se esconde todo lo que quedó sin completar. Ponelo en false
   //         antes de pasarle la página.
@@ -855,6 +872,44 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   padding:.85rem .35rem 1.1rem;text-align:center;color:var(--tinta);
 }
 
+/* ═══ SUBIR FOTOS ═════════════════════════════════════════════════ */
+.subir{
+  display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;
+  margin-bottom:clamp(1.5rem,4vw,2.25rem);
+}
+.subir-titulo{
+  flex:1 1 14rem;min-width:0;
+  padding:.6rem .9rem;
+  border:1px solid var(--linea-fuerte);border-radius:100px;
+  background:var(--surface);color:var(--tinta);
+  font:inherit;font-size:.9375rem;
+}
+.subir-titulo::placeholder{color:var(--tinta-2);opacity:.8}
+.subir-boton{
+  display:inline-flex;align-items:center;gap:.55rem;
+  padding:.62rem 1.25rem .66rem 1rem;
+  background:var(--rosa-hondo);color:var(--sobre-hondo);
+  border-radius:100px;font-size:.9375rem;font-weight:700;
+  box-shadow:var(--sombra);
+  transition:filter .18s, transform .18s;
+}
+.subir-boton:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.subir-boton:disabled{opacity:.6;cursor:default;transform:none}
+.subir-estado{
+  flex:1 1 100%;font-size:.875rem;color:var(--tinta-2);
+  display:flex;align-items:center;gap:.5rem;
+}
+.subir-estado.mal{color:var(--rosa-fuerte);font-weight:600}
+.subir-estado .girando{
+  width:.9rem;height:.9rem;flex:none;border-radius:50%;
+  border:2px solid var(--linea-fuerte);border-top-color:var(--rosa-hondo);
+  animation:girar .7s linear infinite;
+}
+@keyframes girar{to{transform:rotate(360deg)}}
+/* la foto que se está subiendo se ve a medias hasta que llega */
+.polaroid.subiendo{opacity:.55}
+.polaroid.subiendo .marco{cursor:default}
+
 /* ═══ VISOR DE FOTOS ══════════════════════════════════════════════ */
 .visor{
   position:fixed;inset:0;z-index:90;
@@ -1312,6 +1367,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
 }
 
 @media (prefers-reduced-motion:reduce){
+  .subir-estado .girando{animation:none}
   .plan .caja svg path{animation:none;stroke-dashoffset:0}
   .planes-barra i{transition:none}
   html{scroll-behavior:auto}
@@ -1515,6 +1571,17 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       <h2 class="titulo">Pruebas de que <em>pasó</em></h2>
     </div>
     <p class="entrada" id="galeria-pista">Tocá cualquier foto para verla en grande.</p>
+
+    <div class="subir" id="subir" hidden>
+      <input type="text" class="subir-titulo" id="subir-titulo" maxlength="80"
+             placeholder="Ponele un título a la foto (opcional)">
+      <button type="button" class="subir-boton" id="subir-boton">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V6M6 11l6-6 6 6"/></svg>
+        <span id="subir-boton-texto">Agregar una foto</span>
+      </button>
+      <input type="file" id="subir-archivo" accept="image/*" multiple hidden>
+      <p class="subir-estado" id="subir-estado" hidden></p>
+    </div>
     <div class="galeria" id="galeria"></div>
   </div>
 </section>
@@ -1598,6 +1665,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   "use strict";
 
   const $ = (s) => document.querySelector(s);
+  let vincularFotos = () => {};   /* lo define el visor; lo usa la subida */
   const nf = new Intl.NumberFormat("es-AR");
   const BORRADOR = CONFIG.modoBorrador === true;
   const INICIO = new Date(CONFIG.inicio);
@@ -1941,18 +2009,20 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   contar(CONFIG.momentos, "Fotos", "#momentos");
 
   /* ── el visor: tocar una foto la abre en grande ──────────────── */
-  const conFoto = fotos.filter((f) => f.src);
-  if (conFoto.length) {
+  /* la lista sale del DOM, así las fotos que se suban entran solas */
+  const visorFotos = [];
+  {
     const visor = $("#visor"), vImg = $("#visor-img");
     let indice = 0;
 
     const mostrar = (i) => {
-      indice = (i + conFoto.length) % conFoto.length;
-      const f = conFoto[indice];
+      if (!visorFotos.length) return;
+      indice = (i + visorFotos.length) % visorFotos.length;
+      const f = visorFotos[indice];
       vImg.src = f.src;
       vImg.alt = f.pie || "";
       $("#visor-pie").textContent = f.pie || "";
-      $("#visor-cuenta").textContent = (indice + 1) + " de " + conFoto.length;
+      $("#visor-cuenta").textContent = (indice + 1) + " de " + visorFotos.length;
     };
 
     const abrir = (i) => {
@@ -1969,25 +2039,31 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       setTimeout(() => { visor.hidden = true; }, 300);
     };
 
-    /* sólo hay flechas si hay más de una foto */
-    const hayVarias = conFoto.length > 1;
-    $("#visor-previo").hidden = !hayVarias;
-    $("#visor-siguiente").hidden = !hayVarias;
-
-    let n = 0;
-    document.querySelectorAll(".polaroid").forEach((fig) => {
-      const img = fig.querySelector("img");
-      if (!img) return;
-      const mio = n++;
-      const marco = fig.querySelector(".marco");
-      marco.setAttribute("role", "button");
-      marco.setAttribute("tabindex", "0");
-      marco.setAttribute("aria-label", "Ver en grande: " + (img.alt || "foto"));
-      marco.addEventListener("click", () => abrir(mio));
-      marco.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(mio); }
+    /* se vuelve a armar cada vez que entra una foto nueva */
+    vincularFotos = () => {
+      visorFotos.length = 0;
+      document.querySelectorAll(".polaroid").forEach((fig) => {
+        const img = fig.querySelector("img");
+        if (!img || fig.classList.contains("subiendo")) return;
+        const marco = fig.querySelector(".marco");
+        marco.dataset.i = visorFotos.length;
+        visorFotos.push({ src: img.getAttribute("src"), pie: img.alt });
+        if (marco.dataset.listo) return;
+        marco.dataset.listo = "1";
+        marco.setAttribute("role", "button");
+        marco.setAttribute("tabindex", "0");
+        marco.setAttribute("aria-label", "Ver en grande: " + (img.alt || "foto"));
+        marco.addEventListener("click", () => abrir(+marco.dataset.i));
+        marco.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(+marco.dataset.i); }
+        });
       });
-    });
+      const varias = visorFotos.length > 1;
+      $("#visor-previo").hidden = !varias;
+      $("#visor-siguiente").hidden = !varias;
+      $("#galeria-pista").hidden = visorFotos.length === 0;
+    };
+    vincularFotos();
 
     $("#visor-cerrar").addEventListener("click", cerrar);
     $("#visor-previo").addEventListener("click", () => mostrar(indice - 1));
@@ -2012,13 +2088,135 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   }
 
   /* a las fotos apaisadas se les da marco horizontal, así no se recortan tanto */
-  document.querySelectorAll(".polaroid img").forEach((img) => {
+  const medirOrientacion = (img) => {
     const marcar = () => {
       if (img.naturalWidth > img.naturalHeight) img.parentElement.classList.add("ancha");
     };
     if (img.complete && img.naturalWidth) marcar();
     else img.addEventListener("load", marcar, { once: true });
-  });
+  };
+  document.querySelectorAll(".polaroid img").forEach(medirOrientacion);
+
+  /* ── subir fotos a la nube ───────────────────────────────────── */
+
+  const nube = CONFIG.nube || {};
+  if (nube.cloudName) {
+    const caja = $("#subir"), estado = $("#subir-estado");
+    const boton = $("#subir-boton"), archivo = $("#subir-archivo"), campoTitulo = $("#subir-titulo");
+    const galeria = $("#galeria");
+    caja.hidden = false;
+
+    const url = (r) =>
+      "https://res.cloudinary.com/" + nube.cloudName +
+      "/image/upload/f_auto,q_auto,w_1200/v" + r.version + "/" + r.public_id + "." + r.format;
+
+    const avisar = (texto, mal, girando) => {
+      estado.hidden = !texto;
+      estado.classList.toggle("mal", !!mal);
+      estado.innerHTML = (girando ? '<span class="girando"></span>' : "") +
+        "<span>" + esc(texto) + "</span>";
+    };
+
+    /* una polaroid más en la galería */
+    const agregarPolaroid = (src, pie, subiendo) => {
+      const fig = document.createElement("figure");
+      fig.className = "polaroid" + (subiendo ? " subiendo" : "");
+      fig.innerHTML =
+        '<div class="marco"><img src="' + esc(src) + '" alt="' + esc(pie || "") + '" loading="lazy"></div>' +
+        '<span class="lupa" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21M11 8v6M8 11h6"/></svg></span>' +
+        '<figcaption class="pie">' + esc(pie || "") + "</figcaption>";
+      galeria.appendChild(fig);
+      medirOrientacion(fig.querySelector("img"));
+      return fig;
+    };
+
+    /* achicar antes de subir: una foto de celular pesa 7 MB y no hace falta */
+    const comprimir = (f) => new Promise((ok, mal) => {
+      const img = new Image();
+      const tmp = URL.createObjectURL(f);
+      img.onload = () => {
+        URL.revokeObjectURL(tmp);
+        const MAX = 1400;
+        const escala = Math.min(1, MAX / Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * escala);
+        c.height = Math.round(img.height * escala);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob((b) => b ? ok(b) : mal(new Error("no se pudo procesar")), "image/jpeg", .82);
+      };
+      img.onerror = () => { URL.revokeObjectURL(tmp); mal(new Error("no parece una imagen")); };
+      img.src = tmp;
+    });
+
+    const subirUna = async (blob, pie) => {
+      const datos = new FormData();
+      datos.append("file", blob);
+      datos.append("upload_preset", nube.preset);
+      if (nube.etiqueta) datos.append("tags", nube.etiqueta);
+      if (pie) datos.append("context", "caption=" + pie);
+      const r = await fetch("https://api.cloudinary.com/v1_1/" + nube.cloudName + "/image/upload",
+        { method: "POST", body: datos });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error && j.error.message ? j.error.message : "no se pudo subir");
+      return j;
+    };
+
+    boton.addEventListener("click", () => archivo.click());
+
+    archivo.addEventListener("change", async () => {
+      const elegidas = [...archivo.files];
+      archivo.value = "";
+      if (!elegidas.length) return;
+      const pie = campoTitulo.value.trim();
+      boton.disabled = true;
+
+      let listas = 0;
+      for (let i = 0; i < elegidas.length; i++) {
+        const f = elegidas[i];
+        avisar("Subiendo " + (i + 1) + " de " + elegidas.length + "…", false, true);
+        let fig = null;
+        try {
+          const chico = await comprimir(f);
+          fig = agregarPolaroid(URL.createObjectURL(chico), pie, true);
+          const sub = await subirUna(chico, pie);
+          fig.querySelector("img").src = url(sub);
+          fig.classList.remove("subiendo");
+          listas++;
+          vincularFotos();
+        } catch (e) {
+          if (fig) fig.remove();
+          avisar("No se pudo subir " + f.name + ": " + e.message, true);
+          boton.disabled = false;
+          return;
+        }
+      }
+
+      campoTitulo.value = "";
+      boton.disabled = false;
+      avisar(listas === 1 ? "Listo, se agregó la foto." : "Listo, se agregaron " + listas + " fotos.");
+      setTimeout(() => avisar(""), 4000);
+    });
+
+    /* traer las que ya están guardadas */
+    (async () => {
+      try {
+        const r = await fetch("https://res.cloudinary.com/" + nube.cloudName +
+          "/image/list/" + (nube.etiqueta || "nosotros") + ".json", { cache: "no-store" });
+        if (!r.ok) throw new Error("listado " + r.status);
+        const d = await r.json();
+        const guardadas = (d.resources || [])
+          .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        for (const g of guardadas) {
+          const pie = g.context && g.context.custom ? g.context.custom.caption : "";
+          agregarPolaroid(url(g), pie || "", false);
+        }
+        if (guardadas.length) vincularFotos();
+      } catch (e) {
+        /* si el listado está restringido en Cloudinary, se puede subir igual */
+        console.warn("No se pudieron leer las fotos guardadas:", e.message);
+      }
+    })();
+  }
 
   /* planes */
   const planes = visibles(CONFIG.planes);
