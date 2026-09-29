@@ -162,6 +162,20 @@ Está en `"auto"`: hoy 21 de septiembre arranca en primavera, mañana arranca
 en rosa, y el 21 de septiembre del año que viene florece de nuevo sola. El
 botón de arriba queda siempre disponible para encenderla cualquier día.
 
+## Lo que ella puede hacer en la página
+
+- **Tocar una foto** y verla en grande, con el pie de foto. Se pasa de una a
+  otra con las flechas, deslizando el dedo, o con las teclas ← →. Se cierra
+  con la X o con Escape.
+- **Tachar los planes.** Cada cosa de "Lo que falta hacer" se puede marcar y
+  se tacha, con una barrita arriba que muestra cuántas van. Lo que marque
+  queda guardado en su teléfono, así que lo ve igual cuando vuelve.
+  El estado inicial sale del `hecho: true/false` del `CONFIG`.
+- **Tocar en cualquier lado** y que suban corazones desde ahí.
+- En la historia, cada momento muestra **qué número de día de lo nuestro
+  fue**: el primer mensaje es el día 1, la primera vez que se juntaron el
+  día 9. Se calcula solo.
+
 ## Para verla
 
 Doble click en `index.html`. Se abre en el navegador.

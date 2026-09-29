@@ -743,6 +743,12 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 .hito .cuando{
   font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
   color:var(--rosa-hondo);
+  display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;
+}
+/* qué número de día de lo nuestro fue ese momento */
+.hito .dia{
+  color:var(--tinta-2);font-weight:600;letter-spacing:.1em;
+  border-left:1px solid var(--linea-fuerte);padding-left:.5rem;
 }
 .hito h3{
   font-family:var(--display);font-size:clamp(1.4rem,3.4vw,1.85rem);
@@ -849,7 +855,81 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   padding:.85rem .35rem 1.1rem;text-align:center;color:var(--tinta);
 }
 
+/* ═══ VISOR DE FOTOS ══════════════════════════════════════════════ */
+.visor{
+  position:fixed;inset:0;z-index:90;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1rem;padding:clamp(1rem,4vw,2.5rem);
+  background:color-mix(in srgb, var(--tinta) 92%, transparent);
+  background:rgba(24,12,17,.94);
+  opacity:0;visibility:hidden;transition:opacity .25s ease, visibility .25s;
+}
+.visor.abierto{opacity:1;visibility:visible}
+.visor img{
+  max-width:100%;max-height:72vh;width:auto;height:auto;
+  object-fit:contain;border-radius:2px;
+  box-shadow:0 30px 70px -30px rgba(0,0,0,.9);
+  background:#FFF;padding:.5rem;
+}
+.visor-pie{
+  font-family:var(--mano);font-size:clamp(1.3rem,3.4vw,1.7rem);
+  color:#FFF6F9;text-align:center;max-width:36ch;line-height:1.25;
+}
+.visor-cuenta{
+  font-size:.6875rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,246,249,.6);font-variant-numeric:tabular-nums;
+}
+.visor-cerrar{
+  position:absolute;top:clamp(.75rem,3vw,1.5rem);right:clamp(.75rem,3vw,1.5rem);
+  width:2.75rem;height:2.75rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.12);color:#FFF6F9;
+}
+.visor-cerrar:hover{background:rgba(255,255,255,.22)}
+.visor-paso{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:3rem;height:3rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.12);color:#FFF6F9;
+}
+.visor-paso:hover{background:rgba(255,255,255,.22)}
+.visor-paso.previo{left:clamp(.5rem,2vw,1.5rem)}
+.visor-paso.siguiente{right:clamp(.5rem,2vw,1.5rem)}
+@media (max-width:520px){
+  .visor img{max-height:62vh}
+  .visor-paso{bottom:1rem;top:auto;transform:none}
+}
+/* la foto invita a tocarla */
+.polaroid .marco{cursor:zoom-in}
+.polaroid .lupa{
+  position:absolute;right:.75rem;bottom:3.4rem;
+  width:1.9rem;height:1.9rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface);color:var(--rosa-hondo);
+  box-shadow:var(--sombra);
+  opacity:0;transform:translateY(4px);transition:opacity .2s, transform .2s;
+  pointer-events:none;
+}
+.polaroid:hover .lupa,.polaroid:focus-within .lupa{opacity:1;transform:none}
+
 /* ═══ PLANES ══════════════════════════════════════════════════════ */
+.planes-progreso{
+  display:flex;align-items:center;gap:.85rem;
+  max-width:44rem;margin-bottom:1.5rem;
+}
+.planes-barra{
+  flex:1;height:5px;border-radius:3px;
+  background:var(--linea);overflow:hidden;
+}
+.planes-barra i{
+  display:block;height:100%;width:0;border-radius:3px;
+  background:var(--rosa-hondo);
+  transition:width .45s cubic-bezier(.22,1,.36,1);
+}
+.planes-cuenta{
+  font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rosa-hondo);white-space:nowrap;font-variant-numeric:tabular-nums;
+}
 .planes{display:flex;flex-direction:column;gap:.15rem;max-width:44rem}
 .plan{display:flex;align-items:flex-start;gap:.9rem;padding:.7rem 0;border-bottom:1px dashed var(--linea)}
 .plan .caja{
@@ -860,7 +940,17 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 }
 .plan.hecho .caja{background:var(--rosa-hondo);border-color:var(--rosa-hondo)}
 .plan.hecho .que{color:var(--tinta-2);text-decoration:line-through;text-decoration-color:var(--rosa-claro)}
-.plan .que{font-size:1.0625rem}
+.plan{width:100%;text-align:left;font:inherit;color:inherit;transition:padding-left .2s}
+.plan:hover{padding-left:.4rem}
+.plan:hover .caja{border-color:var(--rosa-hondo)}
+.plan .caja{transition:background .2s, border-color .2s}
+.plan .que{font-size:1.0625rem;transition:color .2s}
+/* el tilde se dibuja al marcarlo */
+.plan .caja svg path{
+  stroke-dasharray:24;stroke-dashoffset:24;
+  animation:tildar .35s ease-out forwards;
+}
+@keyframes tildar{to{stroke-dashoffset:0}}
 
 /* ═══ EL CIERRE ═══════════════════════════════════════════════════ */
 .final{
@@ -1060,9 +1150,9 @@ body.bloqueado{overflow:hidden}
 /* Un lienzo fijo detrás de todo. Las secciones de fondo liso son
    transparentes, así que las flores se ven a través; las franjas se
    vuelven un poco translúcidas para que también asomen. */
-#jardin{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:none}
-.primavera #jardin{display:block}
-.primavera section,.primavera .heroe,.primavera footer,.primavera .ornamento{position:relative;z-index:1}
+#jardin{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+:root:not(.primavera) #jardin{z-index:45}
+section,.heroe,footer,.ornamento{position:relative;z-index:1}
 .primavera .franja{
   background:var(--panel);
   background:color-mix(in srgb, var(--panel) 84%, transparent);
@@ -1222,6 +1312,8 @@ body.bloqueado{overflow:hidden}
 }
 
 @media (prefers-reduced-motion:reduce){
+  .plan .caja svg path{animation:none;stroke-dashoffset:0}
+  .planes-barra i{transition:none}
   html{scroll-behavior:auto}
   *{animation-duration:.001ms !important;transition-duration:.001ms !important}
   .polaroid:hover{transform:none}
@@ -1422,6 +1514,7 @@ body.bloqueado{overflow:hidden}
       <p class="rotulo">Momentos</p>
       <h2 class="titulo">Pruebas de que <em>pasó</em></h2>
     </div>
+    <p class="entrada" id="galeria-pista">Tocá cualquier foto para verla en grande.</p>
     <div class="galeria" id="galeria"></div>
   </div>
 </section>
@@ -1433,6 +1526,10 @@ body.bloqueado{overflow:hidden}
       <p class="rotulo">Pendientes</p>
       <h2 class="titulo">Lo que <em>falta</em> hacer</h2>
       <p class="entrada">La lista no se termina nunca. Esa es la idea.</p>
+    </div>
+    <div class="planes-progreso" id="planes-progreso" hidden>
+      <span class="planes-barra"><i id="planes-relleno"></i></span>
+      <span class="planes-cuenta" id="planes-cuenta"></span>
     </div>
     <div class="planes" id="lista-planes"></div>
   </div>
@@ -1455,6 +1552,21 @@ body.bloqueado{overflow:hidden}
     <p>Hecho a mano.</p>
   </div>
 </footer>
+
+<div class="visor" id="visor" role="dialog" aria-modal="true" aria-label="Foto" hidden>
+  <button type="button" class="visor-cerrar" id="visor-cerrar" aria-label="Cerrar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5L5 19"/></svg>
+  </button>
+  <button type="button" class="visor-paso previo" id="visor-previo" aria-label="Foto anterior">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-8 7 8 7"/></svg>
+  </button>
+  <img id="visor-img" alt="">
+  <p class="visor-pie" id="visor-pie"></p>
+  <p class="visor-cuenta" id="visor-cuenta"></p>
+  <button type="button" class="visor-paso siguiente" id="visor-siguiente" aria-label="Foto siguiente">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l8 7-8 7"/></svg>
+  </button>
+</div>
 
 <div class="reproductor" id="reproductor" hidden>
   <audio id="audio" loop preload="none"></audio>
@@ -1756,13 +1868,19 @@ body.bloqueado{overflow:hidden}
     faltantes.push({ nombre: "Los nombres de ustedes dos", ancla: "#contador", n: 1 });
   }
 
+  /* qué número de día de lo nuestro fue esa fecha (el 10 de marzo es el 1) */
+  const soloDia = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diaDeLoNuestro = (f) =>
+    Math.round((soloDia(f) - soloDia(INICIO)) / 864e5) + 1;
+
   /* historia */
   const nodos = visibles(CONFIG.historia).map((h) => {
     const f = new Date(h.fecha + "T12:00:00");
     const cuando = isNaN(f) ? "" : capital(fmtFecha(f, { day: "numeric", month: "long", year: "numeric" }));
     return '<article class="hito' + (h.pendiente ? " pendiente" : "") + '">' +
       sello(h) +
-      (h.pendiente || !cuando ? "" : '<p class="cuando">' + esc(cuando) + "</p>") +
+      (h.pendiente || !cuando ? "" : '<p class="cuando">' + esc(cuando) +
+        '<span class="dia">día ' + diaDeLoNuestro(f) + "</span></p>") +
       "<h3>" + esc(h.titulo) + "</h3>" +
       "<p>" + esc(h.texto) + "</p></article>";
   });
@@ -1815,10 +1933,83 @@ body.bloqueado{overflow:hidden}
       ? '<img src="' + esc(f.src) + '" alt="' + esc(f.pie) + '" loading="lazy">'
       : '<div class="vacio"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/></svg><span>Poné una foto acá</span></div>'
     ) + "</div>" +
+    (f.src ? '<span class="lupa" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21M11 8v6M8 11h6"/></svg></span>' : "") +
     '<figcaption class="pie">' + esc(f.pie) + "</figcaption></figure>"
   ).join("");
   $("#momentos").hidden = fotos.length === 0;
+  $("#galeria-pista").hidden = !fotos.some((f) => f.src);
   contar(CONFIG.momentos, "Fotos", "#momentos");
+
+  /* ── el visor: tocar una foto la abre en grande ──────────────── */
+  const conFoto = fotos.filter((f) => f.src);
+  if (conFoto.length) {
+    const visor = $("#visor"), vImg = $("#visor-img");
+    let indice = 0;
+
+    const mostrar = (i) => {
+      indice = (i + conFoto.length) % conFoto.length;
+      const f = conFoto[indice];
+      vImg.src = f.src;
+      vImg.alt = f.pie || "";
+      $("#visor-pie").textContent = f.pie || "";
+      $("#visor-cuenta").textContent = (indice + 1) + " de " + conFoto.length;
+    };
+
+    const abrir = (i) => {
+      mostrar(i);
+      visor.hidden = false;
+      requestAnimationFrame(() => visor.classList.add("abierto"));
+      document.body.classList.add("bloqueado");
+      $("#visor-cerrar").focus();
+    };
+
+    const cerrar = () => {
+      visor.classList.remove("abierto");
+      document.body.classList.remove("bloqueado");
+      setTimeout(() => { visor.hidden = true; }, 300);
+    };
+
+    /* sólo hay flechas si hay más de una foto */
+    const hayVarias = conFoto.length > 1;
+    $("#visor-previo").hidden = !hayVarias;
+    $("#visor-siguiente").hidden = !hayVarias;
+
+    let n = 0;
+    document.querySelectorAll(".polaroid").forEach((fig) => {
+      const img = fig.querySelector("img");
+      if (!img) return;
+      const mio = n++;
+      const marco = fig.querySelector(".marco");
+      marco.setAttribute("role", "button");
+      marco.setAttribute("tabindex", "0");
+      marco.setAttribute("aria-label", "Ver en grande: " + (img.alt || "foto"));
+      marco.addEventListener("click", () => abrir(mio));
+      marco.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(mio); }
+      });
+    });
+
+    $("#visor-cerrar").addEventListener("click", cerrar);
+    $("#visor-previo").addEventListener("click", () => mostrar(indice - 1));
+    $("#visor-siguiente").addEventListener("click", () => mostrar(indice + 1));
+    visor.addEventListener("click", (e) => { if (e.target === visor) cerrar(); });
+    document.addEventListener("keydown", (e) => {
+      if (visor.hidden) return;
+      if (e.key === "Escape") cerrar();
+      if (e.key === "ArrowLeft") mostrar(indice - 1);
+      if (e.key === "ArrowRight") mostrar(indice + 1);
+    });
+
+    /* deslizar con el dedo */
+    let x0 = null;
+    visor.addEventListener("touchstart", (e) => { x0 = e.changedTouches[0].clientX; }, { passive: true });
+    visor.addEventListener("touchend", (e) => {
+      if (x0 === null) return;
+      const d = e.changedTouches[0].clientX - x0;
+      if (Math.abs(d) > 45) mostrar(indice + (d < 0 ? 1 : -1));
+      x0 = null;
+    }, { passive: true });
+  }
 
   /* a las fotos apaisadas se les da marco horizontal, así no se recortan tanto */
   document.querySelectorAll(".polaroid img").forEach((img) => {
@@ -1831,14 +2022,54 @@ body.bloqueado{overflow:hidden}
 
   /* planes */
   const planes = visibles(CONFIG.planes);
-  $("#lista-planes").innerHTML = planes.map((p) =>
-    '<div class="plan' + (p.hecho ? " hecho" : "") + (p.pendiente ? " pendiente" : "") + '">' +
-    '<span class="caja">' + (p.hecho
-      ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="m5 12.5 5 5L19 7"/></svg>' : "") +
-    "</span><span class=\"que\">" + esc(p.texto) + "</span></div>"
+
+  /* lo que ella vaya marcando queda guardado en su teléfono */
+  const leerMarcas = () => {
+    try { return JSON.parse(localStorage.getItem("planes-hechos") || "{}") || {}; }
+    catch (e) { return {}; }
+  };
+  const marcas = leerMarcas();
+  const estaHecho = (p) => (p.texto in marcas ? marcas[p.texto] : !!p.hecho);
+  const TILDE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="m5 12.5 5 5L19 7"/></svg>';
+
+  $("#lista-planes").innerHTML = planes.map((p, i) =>
+    '<button type="button" class="plan' + (estaHecho(p) ? " hecho" : "") + (p.pendiente ? " pendiente" : "") +
+    '" role="checkbox" aria-checked="' + estaHecho(p) + '" data-i="' + i + '">' +
+    '<span class="caja">' + (estaHecho(p) ? TILDE : "") + "</span>" +
+    '<span class="que">' + esc(p.texto) + "</span></button>"
   ).join("");
   $("#planes").hidden = planes.length === 0;
   contar(CONFIG.planes, "Cosas para hacer juntos", "#planes");
+
+  if (planes.length) {
+    const progreso = $("#planes-progreso"), relleno = $("#planes-relleno"), cuenta = $("#planes-cuenta");
+    progreso.hidden = false;
+
+    const pintarProgreso = () => {
+      const n = planes.filter(estaHecho).length;
+      relleno.style.width = (n / planes.length) * 100 + "%";
+      cuenta.textContent = n + " de " + planes.length + " cumplidas";
+    };
+
+    document.querySelectorAll(".plan").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const p = planes[+btn.dataset.i];
+        const nuevo = !estaHecho(p);
+        marcas[p.texto] = nuevo;
+        try { localStorage.setItem("planes-hechos", JSON.stringify(marcas)); } catch (e) {}
+        btn.classList.toggle("hecho", nuevo);
+        btn.setAttribute("aria-checked", String(nuevo));
+        btn.querySelector(".caja").innerHTML = nuevo ? TILDE : "";
+        pintarProgreso();
+        if (nuevo && soltarCorazones) {
+          const r = btn.querySelector(".caja").getBoundingClientRect();
+          soltarCorazones(r.x + r.width / 2, r.y + r.height / 2, 8);
+        }
+      });
+    });
+
+    pintarProgreso();
+  }
 
   /* el cierre */
   const fin = CONFIG.final || {};
@@ -1852,6 +2083,9 @@ body.bloqueado{overflow:hidden}
   let PRIMAVERA = document.documentElement.classList.contains("primavera");
   const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let soltarPetalos = null, plantarFlor = null, reanudarJardin = null, cambiarCancion = null;
+  let soltarCorazones = null;
+  const NO_TOCAR = "a, button, input, select, textarea, label, summary, " +
+    ".portada, .visor, .reproductor, #panel, .selector, .polaroid, .cinta-scroll, .barra";
 
   /* el jardín de fondo */
   const jardin = $("#jardin");
@@ -1870,6 +2104,9 @@ body.bloqueado{overflow:hidden}
     };
 
     const sembrar = () => {
+      /* el jardín de fondo es cosa de primavera; en rosa el lienzo
+         sólo sirve para los corazones que salen al tocar */
+      if (!PRIMAVERA) { flores = []; return; }
       const n = w < 640 ? 16 : Math.min(48, Math.round((w * h) / 40000));
       flores = Array.from({ length: n }, () => ({
         fx: Math.random(), fy: Math.random(),
@@ -1904,33 +2141,55 @@ body.bloqueado{overflow:hidden}
       ctx.restore();
     };
 
+    const corazon = (x, y, r, a, op, color) => {
+      ctx.save();
+      ctx.translate(x, y); ctx.rotate(a); ctx.scale(r / 15, r / 15);
+      ctx.globalAlpha = op; ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(0, 7);
+      ctx.bezierCurveTo(-13, -4, -8, -15, 0, -7);
+      ctx.bezierCurveTo(8, -15, 13, -4, 0, 7);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    };
+
     const cuadro = () => {
       ctx.clearRect(0, 0, w, h);
       const c = colores();
-      for (const f of flores) {
+      for (const f of (PRIMAVERA ? flores : [])) {
         const vaiven = sinMovimiento ? 0 : Math.sin(t * .012 + f.fase) * .07;
         flor(f.fx * w, f.fy * h, f.r, f.a + vaiven, f.n, f.op, c);
       }
       /* las que plantó ella: nacen con un pop y se quedan */
       const ahoraMs = performance.now();
-      for (const f of plantadas) {
+      for (const f of (PRIMAVERA ? plantadas : [])) {
         const u = sinMovimiento ? 1 : Math.min(1, (ahoraMs - f.nac) / 650);
         const pop = 1 + 2.7 * Math.pow(u - 1, 3) + 1.7 * Math.pow(u - 1, 2); /* ease-out-back */
         flor(f.x, f.y, f.r * pop, f.a + (sinMovimiento ? 0 : Math.sin(t * .012 + f.fase) * .06), f.n, f.op, c);
       }
       sueltos = sueltos.filter((p) => p.vida > 0);
       for (const p of sueltos) {
-        p.x += p.vx; p.y += p.vy; p.vy += .07; p.vx *= .985; p.a += p.giro; p.vida -= .011;
-        ctx.save();
-        ctx.translate(p.x, p.y); ctx.rotate(p.a);
-        ctx.globalAlpha = Math.max(0, p.vida) * .9;
-        ctx.fillStyle = c.petalo;
-        ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * .55, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
+        if (p.tipo === "corazon") {
+          /* los corazones suben y se van desvaneciendo */
+          p.y += p.vy; p.x += p.vx + Math.sin((p.y + p.fase) / 26) * .35;
+          p.vy *= .992; p.a += p.giro; p.vida -= .013;
+          corazon(p.x, p.y, p.r, p.a, Math.max(0, Math.min(1, p.vida)) * .95, p.color ? c.centro : c.petalo);
+        } else {
+          p.x += p.vx; p.y += p.vy; p.vy += .07; p.vx *= .985; p.a += p.giro; p.vida -= .011;
+          ctx.save();
+          ctx.translate(p.x, p.y); ctx.rotate(p.a);
+          ctx.globalAlpha = Math.max(0, p.vida) * .9;
+          ctx.fillStyle = c.petalo;
+          ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * .55, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
       }
       t++;
       const naciendo = plantadas.some((f) => ahoraMs - f.nac < 700);
-      if (!PRIMAVERA || (sinMovimiento && !sueltos.length && !naciendo)) { corriendo = false; return; }
+      if (!PRIMAVERA) {
+        /* en rosa el lienzo descansa cuando no queda ningún corazón */
+        if (!sueltos.length) { ctx.clearRect(0, 0, w, h); corriendo = false; return; }
+      } else if (sinMovimiento && !sueltos.length && !naciendo) { corriendo = false; return; }
       requestAnimationFrame(cuadro);
     };
 
@@ -1946,6 +2205,27 @@ body.bloqueado{overflow:hidden}
           vx: Math.cos(ang) * fuerza, vy: Math.sin(ang) * fuerza - 4,
           r: 4 + Math.random() * 6, a: Math.random() * Math.PI,
           giro: (Math.random() - .5) * .25, vida: 1 + Math.random() * .5
+        });
+      }
+      arrancar();
+    };
+
+    /* un puñado de corazones que suben desde donde se tocó */
+    soltarCorazones = (x, y, cuantos) => {
+      if (sinMovimiento) return;
+      const n = cuantos || 10;
+      for (let i = 0; i < n; i++) {
+        sueltos.push({
+          tipo: "corazon", color: Math.random() < .35,
+          x: x + (Math.random() - .5) * 72,
+          y: y + (Math.random() - .5) * 30,
+          vx: (Math.random() - .5) * 2.6,
+          vy: -1.1 - Math.random() * 2.1,
+          r: 7 + Math.random() * 11,
+          a: (Math.random() - .5) * .5,
+          giro: (Math.random() - .5) * .035,
+          fase: Math.random() * 100,
+          vida: 1
         });
       }
       arrancar();
@@ -2048,11 +2328,9 @@ body.bloqueado{overflow:hidden}
 
     /* tocar en cualquier lado de la página planta una flor ahí */
     const plantadasEl = $("#prim-plantadas");
-    const NO_PLANTAR = "a, button, input, select, textarea, label, summary, " +
-      ".portada, .reproductor, #panel, .selector, .polaroid, .cinta-scroll, .barra";
     document.addEventListener("click", (e) => {
       if (!PRIMAVERA || !plantarFlor) return;
-      if (e.target.closest(NO_PLANTAR)) return;
+      if (e.target.closest(NO_TOCAR)) return;
       if (!$("#portada").hidden) return;
       const n = plantarFlor(e.clientX, e.clientY);
       const plantilla = pt.plantadas || "Plantaste {n} {flores} hoy.";
@@ -2095,8 +2373,17 @@ body.bloqueado{overflow:hidden}
 
   botonModo.addEventListener("click", () => aplicarModo(!PRIMAVERA));
 
-  if (PRIMAVERA) { iniciarJardin(); iniciarSeccion(); }
+  iniciarJardin();
+  if (PRIMAVERA) iniciarSeccion();
   pintarBotonModo();
+
+  /* en rosa, tocar la página suelta corazones */
+  document.addEventListener("click", (e) => {
+    if (PRIMAVERA || !soltarCorazones) return;
+    if (e.target.closest(NO_TOCAR)) return;
+    if (!$("#portada").hidden) return;
+    soltarCorazones(e.clientX, e.clientY);
+  });
 
   /* ── la canción ─────────────────────────────────────────────── */
 
