@@ -206,6 +206,47 @@ formas:
 
 En los dos casos pregunta "¿Seguro que la querés borrar?" antes de hacer nada.
 
+## Lo que viene (los hitos)
+
+El bloque `hitos` del `CONFIG`. Cada uno puede ser:
+
+    { titulo: "Tu cumpleaños", fecha: "2026-08-11", repite: "anual" }
+    { titulo: "Nuestro primer año", fecha: "2027-03-10", repite: false }
+    { titulo: "Día 500", dias: 500 }
+
+Se ordenan solos por cercanía y muestran los cinco más próximos. Los que
+tienen `repite: "anual"` saltan al año que viene cuando pasan; el resto
+desaparece. El día que toca dice "es hoy".
+
+## Los mensajes y el "te extraño"
+
+Los dos están en la sección "De los dos" y necesitan el worker con el KV
+(ver `worker/LEEME.md`). Si falta, no aparecen y no se rompe nada.
+
+- **Mensajes:** eligen quién escribe y queda guardado para los dos. Se
+  guardan los últimos 300.
+- **Te extraño:** un contador compartido. Lo aprieta uno y el otro ve el
+  número subir desde su teléfono. Se actualiza solo cada vez que vuelve a la
+  página.
+
+Los textos salen de `nube.mensajes` y `nube.extrano`. Los nombres, de
+`nube.quienes`, que es la misma lista que usan las fotos.
+
+## Los gestos
+
+Nada que configurar, andan solos en modo rosa:
+
+- **Tocar** la pantalla suelta corazones.
+- **Mantener el dedo** infla uno grande que sale volando al soltar.
+- **Arrastrar** deja un rastro, incluso mientras scrollea.
+- Cada tanto **sube un corazón flotando**: si lo tocás, explota.
+- **Sacudir el teléfono** larga una lluvia.
+- **Inclinar el teléfono** manda todos los corazones para ese lado.
+
+Los dos últimos solo andan en celular, y la primera vez el teléfono va a
+pedir permiso para usar los sensores. Si no responde, cerrá la pestaña y
+abrila de nuevo.
+
 ## Para verla
 
 Doble click en `index.html`. Se abre en el navegador.

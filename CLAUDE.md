@@ -38,7 +38,30 @@ de cuando se publicaba como Artifact. Ya no se usa: el canal es GitHub Pages.
 | Historia | Línea de tiempo + "cosas sueltas" de una línea + un tramo abierto sin fecha de fin que cuenta días solo. Cada hito muestra qué día de lo nuestro fue. |
 | Cosas tuyas, Momentos, Planes | Las 6 polaroids son los destacados. Los planes se tildan y se guardan en el teléfono de quien mira. |
 | El álbum | Sección aparte, se abre a pantalla completa. Todas las fotos en miniatura, con subida y borrado. |
+| Próximos hitos | Dentro de "El próximo diez". Lista lo que viene con cuánto falta. Los cumpleaños se repiten solos cada año y lo que pasa desaparece. Acepta fecha o número de día ("Día 500"). |
+| Mensajes | Los dos pueden escribir. Se guardan en un KV de Cloudflare vía el worker. Incluye el botón "Te extraño", un contador compartido: lo aprieta uno y el otro lo ve subir. |
 | El cierre | Bloque final en rosa fuerte, con los días contados en vivo. |
+
+`CONFIG.nube.quienes` es la lista de nombres, compartida por las fotos (quién
+la subió) y los mensajes (quién escribe).
+
+## Los gestos
+
+Todos en modo rosa, sobre el mismo lienzo `#jardin`, que en rosa se pone por
+encima del contenido y descansa cuando no queda nada que dibujar.
+
+| Gesto | Qué hace |
+|---|---|
+| Tocar | Suelta 16 corazones que suben. |
+| Mantener apretado | Infla uno que late; al soltar sale volando del tamaño que llegó. |
+| Arrastrar | Deja un rastro de corazoncitos por donde pasa el dedo. |
+| Tocar uno que flota | Lo explota. Sube uno cada 7 segundos, hasta 3 a la vez. |
+| Sacudir el teléfono | Lluvia de 84 corazones en cinco tandas. |
+| Inclinar el teléfono | Todos se van hacia ese lado. |
+
+Los dos últimos usan sensores. **En iPhone el permiso de movimiento y el de
+orientación son distintos**: se piden los dos juntos en el primer toque de la
+pantalla, que es el único momento en que Safari lo permite.
 
 Todos los títulos y números se recalculan solos: la página no caduca.
 
@@ -88,6 +111,10 @@ carpetas `respaldo/` y `fotos-originales/` están en `.gitignore`.
   saltea el fundido en vez de quedar mudo.
 - **El "día N" se calcula comparando fechas de calendario**, no restando
   horas: si no, el primer día da 2.
+- **En el celular arrastrar es scrollear**, y ahí el navegador cancela el
+  `pointermove`. Por eso el rastro se engancha por `touchmove` aparte.
+- **Mantener apretado seleccionaba texto y tirar para abajo recargaba.** Lo
+  frenan la clase `apretando` y `overscroll-behavior-y:contain`; no sacarlos.
 - **Las capturas del panel del navegador mienten** (llegan a destiempo o
   recortadas). Para verificar, medir el DOM con JavaScript, no mirar la foto.
 - Después de tocar el `<script>` principal, comprobar la sintaxis:
@@ -164,8 +191,13 @@ Terminada y funcionando. Lo hecho hasta el 30/09/2026:
 - Portada con música (Puesto / Flores Amarillas según el modo).
 - Álbum: subir desde el celular con compresión con techo, ver en grande,
   descargar y borrar con confirmación.
+- Próximos hitos, mensajes de los dos y botón "Te extraño" compartido.
+- Cinco gestos con corazones, más sacudir e inclinar el teléfono.
 - Borrado real vía worker de Cloudflare: `tight-water-2041.nachoingaramo.workers.dev`
   (guarda la clave secreta fuera de la página; sólo borra del álbum).
+  El mismo worker sirve `/mensajes` y `/extrano`, guardados en un KV atado
+  con el nombre de variable `MENSAJES`. Si el KV falta, responde 501 y esas
+  secciones no aparecen: la página no se rompe.
 - Respaldo diario a las 21:00 por el Programador de tareas de Windows.
 
 ## Pendientes
