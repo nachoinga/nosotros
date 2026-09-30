@@ -371,7 +371,11 @@ const CONFIG = {
 /* ═══ RESET ═══════════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none !important}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;overscroll-behavior-y:contain}
+body.apretando{
+  -webkit-user-select:none;user-select:none;
+  -webkit-touch-callout:none;
+}
 body{margin:0}
 figure,figcaption{margin:0} /* el navegador le mete 40px a los lados si no */
 img{max-width:100%;display:block}
@@ -3121,7 +3125,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       globos = globos.filter((g) => g.y > -60);
       for (const g of globos) {
         g.y -= g.v;
-        g.x += Math.sin((g.y + g.fase) / 55) * .5 + inclinacion.x * .35;
+        g.x += Math.sin((g.y + g.fase) / 55) * .5 + inclinacion.x * 1.8;
         const late = 1 + Math.sin(ahoraMs / 260 + g.fase) * .07;
         corazon(g.x, g.y, g.r * late, Math.sin((g.y + g.fase) / 90) * .25, .5, c.petalo);
       }
@@ -3135,7 +3139,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         if (p.tipo === "corazon") {
           /* los corazones suben y se van desvaneciendo */
           p.y += p.vy; p.x += p.vx + Math.sin((p.y + p.fase) / 26) * .35;
-          p.vx += inclinacion.x * .07; p.vy += inclinacion.y * .05;
+          p.vx += inclinacion.x * .42; p.vy += inclinacion.y * .26;
           p.vy *= p.roce || .992; p.a += p.giro; p.vida -= (p.dec || .013);
           corazon(p.x, p.y, p.r, p.a, Math.max(0, Math.min(1, p.vida)) * .95, p.color ? c.centro : c.petalo);
         } else {
@@ -3446,6 +3450,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       if (pincharGlobo && pincharGlobo(e.clientX, e.clientY)) return;
       desde = performance.now(); x0 = e.clientX; y0 = e.clientY;
       activo = true; arrastrando = false;
+      document.body.classList.add("apretando");
       empezarCrecer(e.clientX, e.clientY);
     });
     document.addEventListener("pointermove", (e) => {
@@ -3459,6 +3464,16 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         if (ahora - ultimoRastro > 45) { ultimoRastro = ahora; rastroCorazon(e.clientX, e.clientY); }
       }
     }, { passive: true });
+
+    /* En el celular arrastrar es scrollear, y el navegador cancela el
+       pointermove. Por eso el rastro se engancha al dedo por su cuenta. */
+    document.addEventListener("touchmove", (e) => {
+      if (!rastroCorazon || PRIMAVERA || !$("#portada").hidden) return;
+      const t = e.touches[0];
+      if (!t || (t.target && t.target.closest && t.target.closest(NO_TOCAR))) return;
+      const ahora = performance.now();
+      if (ahora - ultimoRastro > 55) { ultimoRastro = ahora; rastroCorazon(t.clientX, t.clientY); }
+    }, { passive: true });
     const soltar = () => {
       if (!activo) { if (cancelarCrecer) cancelarCrecer(); return; }
       activo = false;
@@ -3468,9 +3483,11 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         if (soltarCorazones) soltarCorazones(x0, y0);
       } else if (soltarCrecido) soltarCrecido();
     };
-    document.addEventListener("pointerup", () => { soltar(); arrastrando = false; });
+    const terminar = () => document.body.classList.remove("apretando");
+    document.addEventListener("pointerup", () => { soltar(); arrastrando = false; terminar(); });
     document.addEventListener("pointercancel", () => {
-      activo = false; arrastrando = false; if (cancelarCrecer) cancelarCrecer();
+      activo = false; arrastrando = false; terminar();
+      if (cancelarCrecer) cancelarCrecer();
     });
   }
 
@@ -3495,8 +3512,8 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
     /* inclinar el teléfono: los corazones se van para ese lado */
     const alInclinar = (e) => {
       if (e.gamma === null || e.beta === null) return;
-      inclinacion.x = Math.max(-1, Math.min(1, (e.gamma || 0) / 45));
-      inclinacion.y = Math.max(-1, Math.min(1, ((e.beta || 0) - 45) / 45));
+      inclinacion.x = Math.max(-1.6, Math.min(1.6, (e.gamma || 0) / 28));
+      inclinacion.y = Math.max(-1.6, Math.min(1.6, ((e.beta || 0) - 45) / 32));
     };
 
     const pedirPermiso = () => {
