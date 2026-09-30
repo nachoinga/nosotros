@@ -158,8 +158,12 @@ bajadas de la nube) no están en el repo. Si importan, copiarlas a mano.
 
 - [ ] Borrar de Cloudinary ~107 imágenes de prueba: etiquetas
       `prueba-limite`, `prueba-respaldo`, `prueba-borrado`, `prueba-album`.
-      (Media Library → buscar `tag:...` → seleccionar todo → borrar.)
       No se ven en el álbum, usan etiquetas distintas a `nosotros`.
+      Está `limpiar-pruebas.ps1` para eso (lee las credenciales de variables
+      de entorno, nunca del archivo). O a mano en Media Library, buscando
+      `tag:prueba-limite` y borrando la selección.
+      **Claude no puede hacerlo: borrar necesita la clave secreta de la
+      cuenta, y esa no va en una conversación ni en el repo.**
 - [ ] Tildar "Return delete token" en el preset, para poder deshacer subidas.
 - [ ] Opcional: Worker de Cloudflare para borrar cualquier foto cuando sea.
 - [ ] Hay un typo suyo en la historia: "Mi cupleaños y tu regalo".
