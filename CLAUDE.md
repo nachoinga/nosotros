@@ -93,6 +93,67 @@ carpetas `respaldo/` y `fotos-originales/` están en `.gitignore`.
 - Después de tocar el `<script>` principal, comprobar la sintaxis:
   `sed -n '/^(() => {$/,/^})();$/p' index.html > /tmp/m.js && node --check /tmp/m.js`
 
+## Cómo hacer un cambio sin romper nada
+
+Seguir los seis pasos en orden. El 3 y el 6 son los que más veces salvaron
+la página.
+
+1. **Ubicar dónde va.** Si es texto, una foto, una fecha o una canción, va en
+   el `CONFIG`. Sólo bajar al CSS o al JavaScript si el cambio es de
+   comportamiento o de aspecto, no de contenido.
+
+2. **Editar.** El archivo es grande: preferir ediciones puntuales sobre
+   anclas únicas antes que reescribir bloques enteros.
+
+3. **Comprobar la sintaxis del JavaScript.** Un paréntesis de más deja la
+   página en blanco sin ningún error visible:
+   ```bash
+   sed -n '/^(() => {$/,/^})();$/p' index.html > /tmp/m.js && node --check /tmp/m.js
+   ```
+
+4. **Probarlo local**, nunca directo en producción:
+   ```bash
+   python -m http.server 8123 --bind 127.0.0.1
+   ```
+   Abrir `http://127.0.0.1:8123/index.html`. **Verificar midiendo el DOM con
+   JavaScript, no mirando capturas** (ver "trampas"). Cosas útiles de medir:
+   `document.documentElement.scrollWidth > clientWidth` (desborde lateral),
+   anchos reales de los elementos que se tocaron, y que no haya errores en la
+   consola.
+
+5. **Probar a 390×844** si se tocó cualquier cosa visual: es el tamaño del
+   iPhone 13, que es donde la mira ella.
+
+6. **Publicar y confirmar que llegó.** El push no alcanza: hay que ver que el
+   build terminó *y que es el commit correcto*:
+   ```bash
+   git add -A && git commit -m "..." && git push
+   gh api repos/nachoinga/nosotros/pages/builds/latest --jq '.status + " " + .commit'
+   ```
+   Comparar contra `git rev-parse HEAD`. Puede tardar hasta 7 minutos.
+
+**Nunca romper:** `figure,figcaption{margin:0}` del reset; la clase
+`primavera` que se pone antes del primer dibujado; el techo de peso al
+comprimir; el cálculo de "día N" por fecha de calendario.
+
+## Si se empieza en otra máquina
+
+El proyecto no depende de ninguna cuenta de Claude: vive en este repo, en
+GitHub Pages y en Cloudinary. Clonando alcanza, salvo dos cosas que están en
+`.gitignore` a propósito y son locales:
+
+```powershell
+git clone https://github.com/nachoinga/nosotros.git
+# volver a programar el respaldo diario:
+$a = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"<RUTA>\respaldo.ps1`""
+$t = New-ScheduledTaskTrigger -Daily -At 9pm
+$s = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+Register-ScheduledTask -TaskName "Respaldo fotos nosotros" -Action $a -Trigger $t -Settings $s -Force
+```
+
+`fotos-originales/` (los originales sin comprimir) y `respaldo/` (las fotos
+bajadas de la nube) no están en el repo. Si importan, copiarlas a mano.
+
 ## Pendientes
 
 - [ ] Borrar de Cloudinary ~107 imágenes de prueba: etiquetas
