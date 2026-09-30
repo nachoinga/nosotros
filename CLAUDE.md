@@ -154,17 +154,25 @@ Register-ScheduledTask -TaskName "Respaldo fotos nosotros" -Action $a -Trigger $
 `fotos-originales/` (los originales sin comprimir) y `respaldo/` (las fotos
 bajadas de la nube) no están en el repo. Si importan, copiarlas a mano.
 
+## Estado
+
+Terminada y funcionando. Lo hecho hasta el 30/09/2026:
+
+- Contador en vivo, cinta métrica, historia con tramo abierto, cosas tuyas,
+  6 polaroids, planes tildables, cierre.
+- Modo primavera con botón para alternar, canción propia y flores.
+- Portada con música (Puesto / Flores Amarillas según el modo).
+- Álbum: subir desde el celular con compresión con techo, ver en grande,
+  descargar y borrar con confirmación.
+- Borrado real vía worker de Cloudflare: `tight-water-2041.nachoingaramo.workers.dev`
+  (guarda la clave secreta fuera de la página; sólo borra del álbum).
+- Respaldo diario a las 21:00 por el Programador de tareas de Windows.
+
 ## Pendientes
 
-- [ ] Borrar de Cloudinary ~107 imágenes de prueba: etiquetas
-      `prueba-limite`, `prueba-respaldo`, `prueba-borrado`, `prueba-album`.
-      No se ven en el álbum, usan etiquetas distintas a `nosotros`.
-      Está `limpiar-pruebas.ps1` para eso (lee las credenciales de variables
-      de entorno, nunca del archivo). O a mano en Media Library, buscando
-      `tag:prueba-limite` y borrando la selección.
-      **Claude no puede hacerlo: borrar necesita la clave secreta de la
-      cuenta, y esa no va en una conversación ni en el repo.**
-- [ ] Tildar "Return delete token" en el preset, para poder deshacer subidas.
-- [ ] Opcional: Worker de Cloudflare para borrar cualquier foto cuando sea.
+Ninguno bloqueante. Opcionales:
+
+- [ ] Tildar "Return delete token" en el preset de Cloudinary. Daba el
+      borrado de 10 minutos; ya no hace falta porque está el worker.
 - [ ] Hay un typo suyo en la historia: "Mi cupleaños y tu regalo".
       Preguntarle antes de tocarlo.
