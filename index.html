@@ -268,6 +268,13 @@ const CONFIG = {
     //    Cloudflare, gratis). Cuando lo tengas, pegá su direccion acá:
     borrarUrl: "https://tight-water-2041.nachoingaramo.workers.dev/",
 
+    // El botón de "te extraño": lo aprieta uno y el otro lo ve subir.
+    extrano: {
+      boton: "Te extraño",
+      cuenta: "{n} veces nos extrañamos",
+      primera: "Todavía nadie apretó. Estrenalo."
+    },
+
     // MENSAJES: para que ella también pueda escribir.
     // Necesita que el worker tenga almacenamiento (ver worker/LEEME.md).
     // Si no está, la sección no aparece y no pasa nada.
@@ -810,6 +817,31 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   background:var(--rosa-hondo);color:var(--sobre-hondo);
   padding:.15rem .6rem .2rem;border-radius:100px;
 }
+
+/* ═══ TE EXTRAÑO ══════════════════════════════════════════════════ */
+.extrano{
+  display:flex;flex-wrap:wrap;align-items:center;gap:1rem;
+  margin-bottom:clamp(2rem,5vw,2.75rem);
+  padding-bottom:clamp(1.5rem,4vw,2rem);
+  border-bottom:1px dashed var(--linea-fuerte);
+}
+.extrano-boton{
+  display:inline-flex;align-items:center;gap:.6rem;
+  padding:.7rem 1.5rem .75rem 1.15rem;
+  background:var(--rosa-hondo);color:var(--sobre-hondo);
+  border-radius:100px;font-size:1rem;font-weight:700;
+  box-shadow:var(--sombra);
+  transition:transform .12s, filter .18s;
+}
+.extrano-boton:hover{filter:brightness(1.07)}
+.extrano-boton:active{transform:scale(.95)}
+.extrano-boton:disabled{opacity:.6}
+.extrano-cuenta{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.1rem,3vw,1.4rem);color:var(--tinta-2);
+}
+.extrano-cuenta b{color:var(--rosa-hondo);font-style:normal;font-weight:400;
+  font-variant-numeric:tabular-nums}
 
 /* ═══ MENSAJES ════════════════════════════════════════════════════ */
 .msj-form{display:flex;flex-direction:column;gap:.75rem;max-width:34rem}
@@ -1899,6 +1931,13 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       <h2 class="titulo" id="msj-titulo"></h2>
       <p class="entrada" id="msj-texto"></p>
     </div>
+    <div class="extrano" id="extrano" hidden>
+      <button type="button" class="extrano-boton" id="extrano-boton">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-8.5-5.4-8.5-11A4.9 4.9 0 0 1 12 7a4.9 4.9 0 0 1 8.5 3c0 5.6-8.5 11-8.5 11z"/></svg>
+        <span id="extrano-texto"></span>
+      </button>
+      <p class="extrano-cuenta" id="extrano-cuenta"></p>
+    </div>
     <div class="msj-form">
       <div class="msj-quienes" id="msj-quienes" role="group" aria-label="Quién escribe"></div>
       <textarea id="msj-campo" maxlength="600" placeholder="Escribí lo que quieras…"></textarea>
@@ -2942,6 +2981,44 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         btn.disabled = false;
       });
 
+      /* el botón de "te extraño", compartido entre los dos teléfonos */
+      const EX = (CONFIG.nube || {}).extrano;
+      if (EX) {
+        const dirEx = dir.replace(/\/+$/, "") + "/extrano";
+        const btnEx = $("#extrano-boton"), cuentaEx = $("#extrano-cuenta");
+        $("#extrano-texto").textContent = EX.boton || "Te extraño";
+
+        const pintarEx = (n) => {
+          cuentaEx.innerHTML = n > 0
+            ? (EX.cuenta || "{n} veces").replace("{n}", "<b>" + nf.format(n) + "</b>")
+            : esc(EX.primera || "");
+          $("#extrano").hidden = false;
+        };
+
+        btnEx.addEventListener("click", async (e) => {
+          btnEx.disabled = true;
+          if (soltarCorazones) {
+            const r = btnEx.getBoundingClientRect();
+            soltarCorazones(r.x + r.width / 2, r.y + r.height / 2, 16);
+          }
+          try {
+            const res = await fetch(dirEx, { method: "POST" });
+            if (res.ok) pintarEx((await res.json()).veces || 0);
+          } catch (err) {}
+          btnEx.disabled = false;
+        });
+
+        const mirarEx = () => fetch(dirEx, { cache: "no-store" })
+          .then((r) => r.ok ? r.json() : null)
+          .then((d) => { if (d) pintarEx(d.veces || 0); })
+          .catch(() => {});
+        mirarEx();
+        /* al volver a la página se ve si el otro apretó mientras tanto */
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden) mirarEx();
+        });
+      }
+
       /* si el almacenamiento todavía no está, la sección ni aparece */
       fetch(base, { cache: "no-store" })
         .then((r) => r.ok ? r.json() : Promise.reject(new Error("sin almacenamiento")))
@@ -2955,7 +3032,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   let PRIMAVERA = document.documentElement.classList.contains("primavera");
   const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let soltarPetalos = null, plantarFlor = null, reanudarJardin = null, cambiarCancion = null;
-  let soltarCorazones = null;
+  let soltarCorazones = null, empezarCrecer = null, soltarCrecido = null, cancelarCrecer = null;
   const NO_TOCAR = "a, button, input, select, textarea, label, summary, " +
     ".portada, .visor, .reproductor, #panel, .selector, .polaroid, .cinta-scroll, .barra";
 
@@ -3039,6 +3116,11 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         const pop = 1 + 2.7 * Math.pow(u - 1, 3) + 1.7 * Math.pow(u - 1, 2); /* ease-out-back */
         flor(f.x, f.y, f.r * pop, f.a + (sinMovimiento ? 0 : Math.sin(t * .012 + f.fase) * .06), f.n, f.op, c);
       }
+      if (creciendo) {
+        const r = Math.min(64, 9 + (ahoraMs - creciendo.nac) / 26);
+        const late = 1 + Math.sin(ahoraMs / 140) * .05;
+        corazon(creciendo.x, creciendo.y, r * late, 0, .9, c.centro);
+      }
       sueltos = sueltos.filter((p) => p.vida > 0);
       for (const p of sueltos) {
         if (p.tipo === "corazon") {
@@ -3060,7 +3142,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       const naciendo = plantadas.some((f) => ahoraMs - f.nac < 700);
       if (!PRIMAVERA) {
         /* en rosa el lienzo descansa cuando no queda ningún corazón */
-        if (!sueltos.length) { ctx.clearRect(0, 0, w, h); corriendo = false; return; }
+        if (!sueltos.length && !creciendo) { ctx.clearRect(0, 0, w, h); corriendo = false; return; }
       } else if (sinMovimiento && !sueltos.length && !naciendo) { corriendo = false; return; }
       requestAnimationFrame(cuadro);
     };
@@ -3081,6 +3163,28 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       }
       arrancar();
     };
+
+    /* un corazón que se infla mientras se mantiene apretado */
+    let creciendo = null;
+    empezarCrecer = (x, y) => {
+      if (sinMovimiento) return;
+      creciendo = { x, y, nac: performance.now() };
+      arrancar();
+    };
+    soltarCrecido = () => {
+      if (!creciendo) return;
+      const r = Math.min(64, 9 + (performance.now() - creciendo.nac) / 26);
+      sueltos.push({
+        tipo: "corazon", color: r > 34,
+        x: creciendo.x, y: creciendo.y,
+        vx: (Math.random() - .5) * .8, vy: -1.3 - Math.random(),
+        r, a: 0, giro: (Math.random() - .5) * .02,
+        fase: Math.random() * 100, vida: 1
+      });
+      creciendo = null;
+      arrancar();
+    };
+    cancelarCrecer = () => { creciendo = null; };
 
     /* un puñado de corazones que suben desde donde se tocó */
     soltarCorazones = (x, y, cuantos) => {
@@ -3249,13 +3353,73 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   if (PRIMAVERA) iniciarSeccion();
   pintarBotonModo();
 
-  /* en rosa, tocar la página suelta corazones */
-  document.addEventListener("click", (e) => {
-    if (PRIMAVERA || !soltarCorazones) return;
-    if (e.target.closest(NO_TOCAR)) return;
-    if (!$("#portada").hidden) return;
-    soltarCorazones(e.clientX, e.clientY);
-  });
+  /* En rosa: un toque suelta corazones chiquitos; si se mantiene
+     apretado, crece uno grande que sale volando al soltar. */
+  {
+    const libre = (e) =>
+      !PRIMAVERA && !e.target.closest(NO_TOCAR) && $("#portada").hidden;
+    let desde = 0, x0 = 0, y0 = 0, activo = false;
+
+    document.addEventListener("pointerdown", (e) => {
+      if (!libre(e) || !empezarCrecer) return;
+      desde = performance.now(); x0 = e.clientX; y0 = e.clientY; activo = true;
+      empezarCrecer(e.clientX, e.clientY);
+    });
+    document.addEventListener("pointermove", (e) => {
+      /* si arrastra o scrollea, no era un apretón */
+      if (activo && Math.hypot(e.clientX - x0, e.clientY - y0) > 12) {
+        activo = false; if (cancelarCrecer) cancelarCrecer();
+      }
+    }, { passive: true });
+    const soltar = () => {
+      if (!activo) { if (cancelarCrecer) cancelarCrecer(); return; }
+      activo = false;
+      const rato = performance.now() - desde;
+      if (rato < 260) {
+        if (cancelarCrecer) cancelarCrecer();
+        if (soltarCorazones) soltarCorazones(x0, y0);
+      } else if (soltarCrecido) soltarCrecido();
+    };
+    document.addEventListener("pointerup", soltar);
+    document.addEventListener("pointercancel", () => {
+      activo = false; if (cancelarCrecer) cancelarCrecer();
+    });
+  }
+
+  /* Sacudir el teléfono: lluvia de corazones. En iPhone hay que pedir
+     permiso, y sólo se puede desde un toque de la persona. */
+  {
+    let ultima = 0, previo = null;
+    const alSacudir = (e) => {
+      const a = e.accelerationIncludingGravity;
+      if (!a) return;
+      if (previo) {
+        const fuerza = Math.abs(a.x - previo.x) + Math.abs(a.y - previo.y) + Math.abs(a.z - previo.z);
+        const ahora = performance.now();
+        if (fuerza > 26 && ahora - ultima > 900 && !PRIMAVERA && soltarCorazones) {
+          ultima = ahora;
+          for (let i = 0; i < 4; i++) {
+            soltarCorazones(Math.random() * window.innerWidth,
+                            window.innerHeight * (.25 + Math.random() * .5), 7);
+          }
+        }
+      }
+      previo = { x: a.x || 0, y: a.y || 0, z: a.z || 0 };
+    };
+
+    const pedirPermiso = () => {
+      const D = window.DeviceMotionEvent;
+      if (!D) return;
+      if (typeof D.requestPermission === "function") {
+        D.requestPermission().then((r) => {
+          if (r === "granted") window.addEventListener("devicemotion", alSacudir);
+        }).catch(() => {});
+      } else {
+        window.addEventListener("devicemotion", alSacudir);
+      }
+    };
+    document.addEventListener("pointerdown", pedirPermiso, { once: true });
+  }
 
   /* ── la canción ─────────────────────────────────────────────── */
 

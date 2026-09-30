@@ -52,6 +52,16 @@ export default {
     if (pedido.method === "OPTIONS") return new Response(null, { status: 204, headers: CABECERAS });
 
     const ruta = new URL(pedido.url).pathname.replace(/\/+$/, "");
+    if (ruta === "/extrano") {
+      if (!entorno.MENSAJES) return responder({ error: "sin almacenamiento" }, 501);
+      let veces = Number((await entorno.MENSAJES.get("extrano")) || 0);
+      if (pedido.method === "POST") {
+        veces += 1;
+        await entorno.MENSAJES.put("extrano", String(veces));
+      }
+      return responder({ veces }, 200);
+    }
+
     if (ruta === "/mensajes") {
       if (pedido.method !== "GET" && pedido.method !== "POST")
         return responder({ error: "solo GET o POST" }, 405);
