@@ -231,9 +231,19 @@ const CONFIG = {
   //   etiqueta  → la inventás vos; con eso se guardan y se buscan
 
   nube: {
-    cloudName: "",
+    cloudName: "umxsjun3",
     preset: "nosotros",
-    etiqueta: "nosotros"
+    etiqueta: "nosotros",
+
+    // Todas las fotos quedan iguales venga del celular que venga: se
+    // achican y se recomprimen EN EL NAVEGADOR antes de subirlas. Así no
+    // importa que un teléfono saque mejores fotos que el otro, ni que
+    // alguna pese 12 MB: al servidor siempre llega lo mismo.
+    foto: {
+      maxLado: 1400,   // el lado más largo, en píxeles
+      maxKB: 450,      // techo de peso: si se pasa, baja la calidad sola
+      calidad: 0.82    // calidad JPEG de arranque (de 0 a 1)
+    }
   },
 
 
@@ -2130,23 +2140,51 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       return fig;
     };
 
-    /* achicar antes de subir: una foto de celular pesa 7 MB y no hace falta */
-    const comprimir = (f) => new Promise((ok, mal) => {
+    /* Todas las fotos, el mismo tamaño y el mismo peso, salgan del celular
+       que salgan. Primero se achican; si aun así se pasan del techo, se les
+       baja la calidad de a poco, y como último recurso el tamaño. */
+    const AJ = nube.foto || {};
+    const MAX_LADO = AJ.maxLado || 1400;
+    const MAX_PESO = (AJ.maxKB || 450) * 1024;
+    const CAL_INICIAL = AJ.calidad || .82;
+    const CAL_MINIMA = .5;
+
+    const cargarImagen = (f) => new Promise((ok, mal) => {
       const img = new Image();
       const tmp = URL.createObjectURL(f);
-      img.onload = () => {
+      img.onload = () => { URL.revokeObjectURL(tmp); ok(img); };
+      img.onerror = () => {
         URL.revokeObjectURL(tmp);
-        const MAX = 1400;
-        const escala = Math.min(1, MAX / Math.max(img.width, img.height));
-        const c = document.createElement("canvas");
-        c.width = Math.round(img.width * escala);
-        c.height = Math.round(img.height * escala);
-        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-        c.toBlob((b) => b ? ok(b) : mal(new Error("no se pudo procesar")), "image/jpeg", .82);
+        mal(new Error("el navegador no pudo abrir esa imagen"));
       };
-      img.onerror = () => { URL.revokeObjectURL(tmp); mal(new Error("no parece una imagen")); };
       img.src = tmp;
     });
+
+    const aJpeg = (lienzo, cal) => new Promise((ok, mal) =>
+      lienzo.toBlob((b) => b ? ok(b) : mal(new Error("no se pudo procesar")), "image/jpeg", cal));
+
+    const dibujar = (img, lado) => {
+      const escala = Math.min(1, lado / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(img.width * escala));
+      c.height = Math.max(1, Math.round(img.height * escala));
+      const ctx = c.getContext("2d");
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      return c;
+    };
+
+    const comprimir = async (f) => {
+      const img = await cargarImagen(f);
+      let lado = MAX_LADO, cal = CAL_INICIAL, blob = null;
+      for (let vuelta = 0; vuelta < 10; vuelta++) {
+        blob = await aJpeg(dibujar(img, lado), cal);
+        if (blob.size <= MAX_PESO) break;
+        if (cal > CAL_MINIMA) cal = Math.max(CAL_MINIMA, cal - .1);
+        else lado = Math.round(lado * .85);
+      }
+      return blob;
+    };
 
     const subirUna = async (blob, pie) => {
       const datos = new FormData();
@@ -2170,13 +2208,16 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       const pie = campoTitulo.value.trim();
       boton.disabled = true;
 
-      let listas = 0;
+      let listas = 0, pesoTotal = 0;
       for (let i = 0; i < elegidas.length; i++) {
         const f = elegidas[i];
-        avisar("Subiendo " + (i + 1) + " de " + elegidas.length + "…", false, true);
+        const deCuantas = elegidas.length > 1 ? " " + (i + 1) + " de " + elegidas.length : "";
+        avisar("Preparando la foto" + deCuantas + "…", false, true);
         let fig = null;
         try {
           const chico = await comprimir(f);
+          pesoTotal += chico.size;
+          avisar("Subiendo la foto" + deCuantas + "…", false, true);
           fig = agregarPolaroid(URL.createObjectURL(chico), pie, true);
           const sub = await subirUna(chico, pie);
           fig.querySelector("img").src = url(sub);
@@ -2193,8 +2234,10 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
 
       campoTitulo.value = "";
       boton.disabled = false;
-      avisar(listas === 1 ? "Listo, se agregó la foto." : "Listo, se agregaron " + listas + " fotos.");
-      setTimeout(() => avisar(""), 4000);
+      const kb = Math.round(pesoTotal / 1024);
+      avisar((listas === 1 ? "Listo, se agregó la foto" : "Listo, se agregaron " + listas + " fotos") +
+        " (" + (kb >= 1024 ? (kb / 1024).toFixed(1) + " MB" : kb + " KB") + ").");
+      setTimeout(() => avisar(""), 5000);
     });
 
     /* traer las que ya están guardadas */
