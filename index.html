@@ -247,6 +247,9 @@ const CONFIG = {
   //   etiqueta  → la inventás vos; con eso se guardan y se buscan
 
   nube: {
+    // Quiénes pueden subir fotos y escribir. Sale en cada foto y mensaje.
+    quienes: ["Florencia", "Ignacio"],
+
     cloudName: "umxsjun3",
     preset: "nosotros",
     etiqueta: "nosotros",
@@ -271,7 +274,6 @@ const CONFIG = {
     mensajes: {
       titulo: "Escribime algo",
       texto: "Lo que quieras, cuando quieras. Queda acá para los dos.",
-      quienes: ["Florencia", "Ignacio"],
       vacio: "Todavía no hay ninguno. Estrenalo vos."
     },
 
@@ -1027,6 +1029,11 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 }
 .subir-boton:hover{filter:brightness(1.07);transform:translateY(-1px)}
 .subir-boton:disabled{opacity:.6;cursor:default;transform:none}
+.subir-quienes{flex:1 1 100%;margin-top:-.15rem}
+.visor-meta{
+  font-size:.75rem;letter-spacing:.06em;
+  color:rgba(255,246,249,.55);margin-top:-.4rem;
+}
 .subir-estado{
   flex:1 1 100%;font-size:.875rem;color:var(--tinta-2);
   display:flex;align-items:center;gap:.5rem;
@@ -1938,6 +1945,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V6M6 11l6-6 6 6"/></svg>
         <span id="subir-boton-texto">Agregar una foto</span>
       </button>
+      <div class="msj-quienes subir-quienes" id="subir-quienes" role="group" aria-label="Quién sube la foto"></div>
       <input type="file" id="subir-archivo" accept="image/*" multiple hidden>
       <p class="subir-estado" id="subir-estado" hidden></p>
     </div>
@@ -1970,6 +1978,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   </button>
   <img id="visor-img" alt="">
   <p class="visor-pie" id="visor-pie"></p>
+  <p class="visor-meta" id="visor-meta"></p>
   <p class="visor-cuenta" id="visor-cuenta"></p>
   <button type="button" class="visor-paso siguiente" id="visor-siguiente" aria-label="Foto siguiente">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l8 7-8 7"/></svg>
@@ -2437,6 +2446,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       vImg.src = f.src;
       vImg.alt = f.pie || "";
       $("#visor-pie").textContent = f.pie || "";
+      $("#visor-meta").textContent = f.meta || "";
       $("#visor-cuenta").textContent = (indice + 1) + " de " + lista.length;
       const bajar = $("#visor-bajar");
       bajar.href = f.descarga || f.src;
@@ -2534,6 +2544,12 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       /* fl_attachment hace que el navegador la baje en vez de abrirla */
       descarga: base + "fl_attachment/v" + r.version + "/" + r.public_id + "." + r.format,
       pie: (r.context && r.context.custom && r.context.custom.caption) || "",
+      meta: (() => {
+        const c = (r.context && r.context.custom) || {};
+        const f = new Date(r.created_at);
+        const cuando = isNaN(f) ? "" : fmtFecha(f, { day: "numeric", month: "long", year: "numeric" });
+        return c.de ? "Subida por " + c.de + " · " + cuando : cuando;
+      })(),
       /* sólo viene al subirla, y sirve por 10 minutos */
       token: r.delete_token || null,
       vence: r.delete_token ? Date.now() + 10 * 60 * 1000 : 0
@@ -2595,7 +2611,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       }
       const b = e.target.closest(".album-ver");
       if (!b) return;
-      abrirVisor(fotos.map((f) => ({ src: f.grande, pie: f.pie, descarga: f.descarga })), +b.dataset.i);
+      abrirVisor(fotos.map((f) => ({ src: f.grande, pie: f.pie, descarga: f.descarga, meta: f.meta })), +b.dataset.i);
     });
 
     /* ── borrar una foto ──────────────────────────────────────── */
@@ -2718,13 +2734,30 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       datos.append("file", blob);
       datos.append("upload_preset", nube.preset);
       datos.append("tags", etiqueta);
-      if (pie) datos.append("context", "caption=" + pie);
+      const sinSeparadores = (t) => String(t).replace(/[|=]/g, " ").trim();
+      const ctx = [];
+      if (pie) ctx.push("caption=" + sinSeparadores(pie));
+      if (quienSube) ctx.push("de=" + sinSeparadores(quienSube));
+      if (ctx.length) datos.append("context", ctx.join("|"));
       const r = await fetch("https://api.cloudinary.com/v1_1/" + nube.cloudName + "/image/upload",
         { method: "POST", body: datos });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.error && j.error.message ? j.error.message : "no se pudo subir");
       return j;
     };
+
+    const gente = nube.quienes || ["Ella", "Yo"];
+    let quienSube = gente[0];
+    $("#subir-quienes").innerHTML = gente.map((q, i) =>
+      '<button type="button" data-q="' + esc(q) + '" aria-pressed="' + (i === 0) + '">' +
+      esc(q) + "</button>").join("");
+    $("#subir-quienes").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      quienSube = b.dataset.q;
+      $("#subir-quienes").querySelectorAll("button").forEach((x) =>
+        x.setAttribute("aria-pressed", String(x === b)));
+    });
 
     boton.addEventListener("click", () => archivo.click());
 
@@ -2851,7 +2884,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
     const M = (CONFIG.nube || {}).mensajes;
     if (dir && M) {
       const base = dir.replace(/\/+$/, "") + "/mensajes";
-      const quienes = M.quienes || ["Ella", "Yo"];
+      const quienes = (CONFIG.nube || {}).quienes || ["Ella", "Yo"];
       let quien = quienes[0];
 
       $("#msj-titulo").textContent = M.titulo || "Escribime algo";
