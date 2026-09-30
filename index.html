@@ -1100,6 +1100,7 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   font-size:.6875rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
   color:rgba(255,246,249,.6);font-variant-numeric:tabular-nums;
 }
+.visor-bajar{right:calc(clamp(.75rem,3vw,1.5rem) + 3.25rem) !important;text-decoration:none}
 .visor-cerrar{
   position:absolute;top:clamp(.75rem,3vw,1.5rem);right:clamp(.75rem,3vw,1.5rem);
   width:2.75rem;height:2.75rem;border-radius:50%;
@@ -1836,6 +1837,9 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
 </div>
 
 <div class="visor" id="visor" role="dialog" aria-modal="true" aria-label="Foto" hidden>
+  <a class="visor-cerrar visor-bajar" id="visor-bajar" download aria-label="Descargar esta foto">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M7 12l5 5 5-5M5 20h14"/></svg>
+  </a>
   <button type="button" class="visor-cerrar" id="visor-cerrar" aria-label="Cerrar">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5L5 19"/></svg>
   </button>
@@ -2273,6 +2277,9 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       vImg.alt = f.pie || "";
       $("#visor-pie").textContent = f.pie || "";
       $("#visor-cuenta").textContent = (indice + 1) + " de " + lista.length;
+      const bajar = $("#visor-bajar");
+      bajar.href = f.descarga || f.src;
+      bajar.setAttribute("download", (f.pie || "nosotros").replace(/[\/:*?"<>|]/g, "-") + ".jpg");
       const varias = lista.length > 1;
       $("#visor-previo").hidden = !varias;
       $("#visor-siguiente").hidden = !varias;
@@ -2363,6 +2370,8 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       id: r.public_id,
       chica: base + "c_fill,g_auto,w_400,h_400,f_auto,q_auto/v" + r.version + "/" + r.public_id + "." + r.format,
       grande: base + "w_1400,f_auto,q_auto/v" + r.version + "/" + r.public_id + "." + r.format,
+      /* fl_attachment hace que el navegador la baje en vez de abrirla */
+      descarga: base + "fl_attachment/v" + r.version + "/" + r.public_id + "." + r.format,
       pie: (r.context && r.context.custom && r.context.custom.caption) || "",
       /* sólo viene al subirla, y sirve por 10 minutos */
       token: r.delete_token || null,
@@ -2425,7 +2434,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       }
       const b = e.target.closest(".album-ver");
       if (!b) return;
-      abrirVisor(fotos.map((f) => ({ src: f.grande, pie: f.pie })), +b.dataset.i);
+      abrirVisor(fotos.map((f) => ({ src: f.grande, pie: f.pie, descarga: f.descarga })), +b.dataset.i);
     });
 
     /* ── borrar una foto ──────────────────────────────────────── */
