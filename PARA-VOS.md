@@ -176,6 +176,36 @@ botón de arriba queda siempre disponible para encenderla cualquier día.
   fue**: el primer mensaje es el día 1, la primera vez que se juntaron el
   día 9. Se calcula solo.
 
+## El álbum
+
+Las 6 polaroids de "Momentos" son los destacados y siguen saliendo del
+`CONFIG`. Aparte está **Nuestro álbum**, que se abre a pantalla completa con
+todas las fotos en miniatura. Ahí adentro está el botón para subir.
+
+Todo se maneja desde `nube` en el `CONFIG`:
+
+- `cloudName`, `preset`, `etiqueta` → la conexión con Cloudinary.
+- `album` → los textos de la sección.
+- `foto` → cuánto se achican antes de subir (lado máximo, peso máximo y
+  calidad). No importa que un celular saque mejores fotos que el otro: al
+  servidor siempre llega lo mismo.
+- `borrarUrl` → para poder borrar cualquier foto cuando sea (ver abajo).
+
+### Borrar fotos
+
+Cloudinary no deja borrar desde una página web sin la clave secreta, y esa
+clave no puede estar en el código porque la página es pública. Hay dos
+formas:
+
+1. **Deshacer, hasta 10 minutos después de subirla.** Gratis. Solo hay que
+   tildar "Return delete token" en el preset (Settings > Upload > tu preset >
+   Advanced). Con eso, la crucecita aparece en las fotos recién subidas.
+2. **Borrar cualquier foto, cuando sea.** Necesita un ayudante chiquito que
+   guarde la clave fuera de la página. Cuando lo tengas, pegá su dirección
+   en `borrarUrl` y la crucecita aparece en todas.
+
+En los dos casos pregunta "¿Seguro que la querés borrar?" antes de hacer nada.
+
 ## Para verla
 
 Doble click en `index.html`. Se abre en el navegador.

@@ -235,6 +235,28 @@ const CONFIG = {
     preset: "nosotros",
     etiqueta: "nosotros",
 
+    // PARA PODER BORRAR FOTOS.
+    // Cloudinary no deja borrar desde una página web sin la clave secreta,
+    // y esa clave no puede estar acá porque la página es pública. Hay dos
+    // formas, y el botón de borrar funciona con cualquiera de las dos:
+    //
+    // 1) Deshacer, hasta 10 minutos despues de subirla. Gratis y sin nada
+    //    extra: solo hay que tildar "Return delete token" en el preset,
+    //    en Settings > Upload > tu preset > Advanced.
+    //
+    // 2) Borrar cualquier foto, cuando sea. Necesita un ayudante chiquito
+    //    que guarde la clave secreta fuera de la página (un Worker de
+    //    Cloudflare, gratis). Cuando lo tengas, pegá su direccion acá:
+    borrarUrl: "",
+
+    // Cómo se presenta el álbum en la página
+    album: {
+      titulo: "Nuestro álbum",
+      texto: "Todo lo que vamos juntando. Acá podemos subir fotos los dos, desde el celular, y quedan guardadas para siempre.",
+      boton: "Abrir el álbum",
+      vacio: "Todavía no hay ninguna"
+    },
+
     // Todas las fotos quedan iguales venga del celular que venga: se
     // achican y se recomprimen EN EL NAVEGADOR antes de subirlas. Así no
     // importa que un teléfono saque mejores fotos que el otro, ni que
@@ -920,9 +942,143 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 .polaroid.subiendo{opacity:.55}
 .polaroid.subiendo .marco{cursor:default}
 
+/* ═══ EL ÁLBUM ════════════════════════════════════════════════════ */
+/* Las polaroids de arriba son los destacados. Acá entran todas: por eso
+   miniaturas chicas y a pantalla completa, que si no se hace eterno. */
+.album-tapa{
+  display:flex;align-items:center;gap:clamp(1rem,3vw,1.75rem);
+  width:100%;text-align:left;
+  padding:clamp(.9rem,2.5vw,1.2rem);
+  border:1px solid var(--linea);border-radius:4px;
+  background:var(--surface);box-shadow:var(--sombra);
+  transition:transform .2s, border-color .2s;
+}
+.album-tapa:hover{transform:translateY(-2px);border-color:var(--rosa-claro)}
+.album-mosaico{
+  flex:none;display:grid;grid-template-columns:1fr 1fr;gap:3px;
+  width:clamp(5.5rem,17vw,7rem);aspect-ratio:1;
+  border-radius:3px;overflow:hidden;background:var(--rosa-suave);
+}
+.album-mosaico img{width:100%;height:100%;object-fit:cover}
+.album-mosaico .solo{grid-column:1/-1;grid-row:1/-1}
+.album-mosaico-vacio{
+  grid-column:1/-1;grid-row:1/-1;
+  display:flex;align-items:center;justify-content:center;color:var(--rosa-hondo);
+}
+.album-info{display:flex;flex-direction:column;gap:.4rem;min-width:0}
+.album-cuenta{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.45rem,3.8vw,2.1rem);line-height:1;color:var(--tinta);
+}
+.album-cta{
+  display:flex;align-items:center;gap:.45rem;
+  font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rosa-hondo);
+}
+
+.album-panel{
+  position:fixed;inset:0;z-index:80;
+  display:flex;flex-direction:column;
+  background:var(--ground);
+  opacity:0;visibility:hidden;transition:opacity .25s ease, visibility .25s;
+}
+.album-panel.abierto{opacity:1;visibility:visible}
+.album-barra{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:clamp(.8rem,2.5vw,1.15rem) clamp(1rem,4vw,2rem);
+  border-bottom:1px solid var(--linea);background:var(--surface);
+}
+.album-barra-titulo{font-family:var(--display);font-style:italic;font-size:1.35rem;line-height:1.1}
+.album-barra-cuenta{
+  font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rosa-hondo);margin-top:.2rem;font-variant-numeric:tabular-nums;
+}
+.album-cerrar{
+  flex:none;width:2.6rem;height:2.6rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--rosa-suave);color:var(--rosa-hondo);
+}
+.album-cerrar:hover{background:var(--rosa-claro)}
+.album-cuerpo{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:clamp(1rem,3vw,1.75rem) clamp(1rem,4vw,2rem) 3rem;
+}
+.album-grilla{
+  display:grid;gap:4px;
+  grid-template-columns:repeat(auto-fill,minmax(5.5rem,1fr));
+}
+.album-foto{
+  position:relative;aspect-ratio:1;overflow:hidden;
+  border-radius:2px;background:var(--rosa-suave);
+}
+.album-ver{display:block;width:100%;height:100%;padding:0}
+.album-foto img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.album-foto:hover img{transform:scale(1.06)}
+.album-vacio{
+  text-align:center;color:var(--tinta-2);
+  padding:clamp(2.5rem,8vw,4rem) 1rem;
+}
+
+/* la crucecita para borrar una foto */
+.album-borrar{
+  position:absolute;top:4px;right:4px;
+  width:1.6rem;height:1.6rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(24,12,17,.62);color:#FFF6F9;
+  opacity:0;transform:scale(.8);
+  transition:opacity .18s, transform .18s, background .18s;
+}
+.album-borrar:hover{background:rgba(24,12,17,.85)}
+.album-foto:hover .album-borrar,
+.album-foto:focus-within .album-borrar{opacity:1;transform:none}
+/* en pantallas tactiles no hay "hover": siempre visible */
+@media (hover:none){
+  .album-borrar{opacity:1;transform:none}
+}
+
+/* el "¿estás seguro?" */
+.seguro{
+  position:fixed;inset:0;z-index:98;
+  display:flex;align-items:center;justify-content:center;
+  padding:1.5rem;
+  background:rgba(24,12,17,.7);
+  opacity:0;visibility:hidden;transition:opacity .2s, visibility .2s;
+}
+.seguro.abierto{opacity:1;visibility:visible}
+.seguro-caja{
+  width:min(24rem,100%);
+  background:var(--surface);
+  border-radius:5px;
+  padding:clamp(1.5rem,4vw,2rem);
+  box-shadow:0 30px 70px -30px rgba(0,0,0,.8);
+  text-align:center;
+  transform:translateY(8px);transition:transform .2s;
+}
+.seguro.abierto .seguro-caja{transform:none}
+.seguro-titulo{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.4rem,4vw,1.8rem);line-height:1.15;color:var(--tinta);
+}
+.seguro-texto{margin-top:.75rem;font-size:.9375rem;color:var(--tinta-2)}
+.seguro-mini{
+  width:5rem;height:5rem;margin:1.25rem auto 0;
+  border-radius:3px;overflow:hidden;background:var(--rosa-suave);
+}
+.seguro-mini img{width:100%;height:100%;object-fit:cover}
+.seguro-botones{display:flex;gap:.6rem;margin-top:1.5rem}
+.seguro-botones button{
+  flex:1;padding:.7rem 1rem .75rem;border-radius:100px;
+  font-size:.9375rem;font-weight:700;
+}
+.seguro-no{border:1px solid var(--linea-fuerte);background:var(--surface);color:var(--tinta)}
+.seguro-no:hover{border-color:var(--rosa-claro)}
+.seguro-si{background:var(--rosa-hondo);color:var(--sobre-hondo)}
+.seguro-si:hover{filter:brightness(1.07)}
+.seguro-si:disabled{opacity:.6;cursor:default}
+
 /* ═══ VISOR DE FOTOS ══════════════════════════════════════════════ */
 .visor{
-  position:fixed;inset:0;z-index:90;
+  position:fixed;inset:0;z-index:95;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:1rem;padding:clamp(1rem,4vw,2.5rem);
   background:color-mix(in srgb, var(--tinta) 92%, transparent);
@@ -961,6 +1117,7 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 .visor-paso.previo{left:clamp(.5rem,2vw,1.5rem)}
 .visor-paso.siguiente{right:clamp(.5rem,2vw,1.5rem)}
 @media (max-width:520px){
+  .album-grilla{grid-template-columns:repeat(auto-fill,minmax(4.6rem,1fr));gap:3px}
   .visor img{max-height:62vh}
   .visor-paso{bottom:1rem;top:auto;transform:none}
 }
@@ -1582,17 +1739,27 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
     </div>
     <p class="entrada" id="galeria-pista">Tocá cualquier foto para verla en grande.</p>
 
-    <div class="subir" id="subir" hidden>
-      <input type="text" class="subir-titulo" id="subir-titulo" maxlength="80"
-             placeholder="Ponele un título a la foto (opcional)">
-      <button type="button" class="subir-boton" id="subir-boton">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V6M6 11l6-6 6 6"/></svg>
-        <span id="subir-boton-texto">Agregar una foto</span>
-      </button>
-      <input type="file" id="subir-archivo" accept="image/*" multiple hidden>
-      <p class="subir-estado" id="subir-estado" hidden></p>
-    </div>
     <div class="galeria" id="galeria"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ EL ÁLBUM ═══════════════════ -->
+<section class="franja" id="album" hidden>
+  <div class="envoltura">
+    <div class="cabecera-seccion">
+      <p class="rotulo">El álbum</p>
+      <h2 class="titulo" id="album-titulo"></h2>
+      <p class="entrada" id="album-texto"></p>
+    </div>
+    <button type="button" class="album-tapa" id="album-abrir">
+      <span class="album-mosaico" id="album-mosaico"></span>
+      <span class="album-info">
+        <span class="album-cuenta" id="album-cuenta"></span>
+        <span class="album-cta" id="album-cta">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l8 7-8 7"/></svg>
+        </span>
+      </span>
+    </button>
   </div>
 </section>
 
@@ -1629,6 +1796,44 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
     <p>Hecho a mano.</p>
   </div>
 </footer>
+
+<div class="album-panel" id="album-panel" role="dialog" aria-modal="true" aria-labelledby="album-barra-titulo" hidden>
+  <header class="album-barra">
+    <div>
+      <p class="album-barra-titulo" id="album-barra-titulo"></p>
+      <p class="album-barra-cuenta" id="album-barra-cuenta"></p>
+    </div>
+    <button type="button" class="album-cerrar" id="album-cerrar" aria-label="Cerrar el álbum">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 5l14 14M19 5L5 19"/></svg>
+    </button>
+  </header>
+  <div class="album-cuerpo">
+    <div class="subir" id="subir" hidden>
+      <input type="text" class="subir-titulo" id="subir-titulo" maxlength="80"
+             placeholder="Ponele un título a la foto (opcional)">
+      <button type="button" class="subir-boton" id="subir-boton">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 19V6M6 11l6-6 6 6"/></svg>
+        <span id="subir-boton-texto">Agregar una foto</span>
+      </button>
+      <input type="file" id="subir-archivo" accept="image/*" multiple hidden>
+      <p class="subir-estado" id="subir-estado" hidden></p>
+    </div>
+    <div class="album-grilla" id="album-grilla"></div>
+    <p class="album-vacio" id="album-vacio" hidden></p>
+  </div>
+</div>
+
+<div class="seguro" id="seguro" role="alertdialog" aria-modal="true" aria-labelledby="seguro-titulo" hidden>
+  <div class="seguro-caja">
+    <p class="seguro-titulo" id="seguro-titulo"></p>
+    <p class="seguro-texto" id="seguro-texto"></p>
+    <div class="seguro-mini" id="seguro-mini" hidden><img id="seguro-mini-img" alt=""></div>
+    <div class="seguro-botones">
+      <button type="button" class="seguro-no" id="seguro-no">No, dejala</button>
+      <button type="button" class="seguro-si" id="seguro-si">Sí, borrala</button>
+    </div>
+  </div>
+</div>
 
 <div class="visor" id="visor" role="dialog" aria-modal="true" aria-label="Foto" hidden>
   <button type="button" class="visor-cerrar" id="visor-cerrar" aria-label="Cerrar">
@@ -1675,7 +1880,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   "use strict";
 
   const $ = (s) => document.querySelector(s);
-  let vincularFotos = () => {};   /* lo define el visor; lo usa la subida */
+  let abrirVisor = () => {};      /* lo define el visor; lo usan las fotos */
   const nf = new Intl.NumberFormat("es-AR");
   const BORRADOR = CONFIG.modoBorrador === true;
   const INICIO = new Date(CONFIG.inicio);
@@ -2018,24 +2223,63 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   $("#galeria-pista").hidden = !fotos.some((f) => f.src);
   contar(CONFIG.momentos, "Fotos", "#momentos");
 
-  /* ── el visor: tocar una foto la abre en grande ──────────────── */
-  /* la lista sale del DOM, así las fotos que se suban entran solas */
-  const visorFotos = [];
+  /* ── "¿estás seguro?" ───────────────────────────────────────── */
+  /* Devuelve true o false. Se usa antes de cualquier cosa que no tenga
+     vuelta atrás, como borrar una foto. */
+  const preguntarSeguro = ({ titulo, texto, si, no, mini }) => new Promise((responder) => {
+    const caja = $("#seguro"), btnSi = $("#seguro-si"), btnNo = $("#seguro-no");
+    $("#seguro-titulo").textContent = titulo;
+    $("#seguro-texto").textContent = texto || "";
+    btnSi.textContent = si || "Sí";
+    btnNo.textContent = no || "No";
+    btnSi.disabled = false;
+    $("#seguro-mini").hidden = !mini;
+    if (mini) $("#seguro-mini-img").src = mini;
+
+    caja.hidden = false;
+    requestAnimationFrame(() => caja.classList.add("abierto"));
+    btnNo.focus();
+
+    const cerrar = (valor) => {
+      caja.classList.remove("abierto");
+      setTimeout(() => { caja.hidden = true; }, 220);
+      btnSi.removeEventListener("click", queSi);
+      btnNo.removeEventListener("click", queNo);
+      caja.removeEventListener("click", afuera);
+      document.removeEventListener("keydown", tecla);
+      responder(valor);
+    };
+    const queSi = () => { btnSi.disabled = true; cerrar(true); };
+    const queNo = () => cerrar(false);
+    const afuera = (e) => { if (e.target === caja) cerrar(false); };
+    const tecla = (e) => { if (e.key === "Escape") { e.stopPropagation(); cerrar(false); } };
+
+    btnSi.addEventListener("click", queSi);
+    btnNo.addEventListener("click", queNo);
+    caja.addEventListener("click", afuera);
+    document.addEventListener("keydown", tecla);
+  });
+
+  /* ── el visor: sirve tanto a las polaroids como al álbum ────── */
   {
     const visor = $("#visor"), vImg = $("#visor-img");
-    let indice = 0;
+    let lista = [], indice = 0;
 
     const mostrar = (i) => {
-      if (!visorFotos.length) return;
-      indice = (i + visorFotos.length) % visorFotos.length;
-      const f = visorFotos[indice];
+      if (!lista.length) return;
+      indice = (i + lista.length) % lista.length;
+      const f = lista[indice];
       vImg.src = f.src;
       vImg.alt = f.pie || "";
       $("#visor-pie").textContent = f.pie || "";
-      $("#visor-cuenta").textContent = (indice + 1) + " de " + visorFotos.length;
+      $("#visor-cuenta").textContent = (indice + 1) + " de " + lista.length;
+      const varias = lista.length > 1;
+      $("#visor-previo").hidden = !varias;
+      $("#visor-siguiente").hidden = !varias;
     };
 
-    const abrir = (i) => {
+    abrirVisor = (fotos, i) => {
+      lista = fotos;
       mostrar(i);
       visor.hidden = false;
       requestAnimationFrame(() => visor.classList.add("abierto"));
@@ -2045,35 +2289,11 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
 
     const cerrar = () => {
       visor.classList.remove("abierto");
-      document.body.classList.remove("bloqueado");
+      /* si se abrió desde el álbum, el fondo sigue bloqueado por el álbum */
+      const alb = $("#album-panel");
+      if (!alb || alb.hidden) document.body.classList.remove("bloqueado");
       setTimeout(() => { visor.hidden = true; }, 300);
     };
-
-    /* se vuelve a armar cada vez que entra una foto nueva */
-    vincularFotos = () => {
-      visorFotos.length = 0;
-      document.querySelectorAll(".polaroid").forEach((fig) => {
-        const img = fig.querySelector("img");
-        if (!img || fig.classList.contains("subiendo")) return;
-        const marco = fig.querySelector(".marco");
-        marco.dataset.i = visorFotos.length;
-        visorFotos.push({ src: img.getAttribute("src"), pie: img.alt });
-        if (marco.dataset.listo) return;
-        marco.dataset.listo = "1";
-        marco.setAttribute("role", "button");
-        marco.setAttribute("tabindex", "0");
-        marco.setAttribute("aria-label", "Ver en grande: " + (img.alt || "foto"));
-        marco.addEventListener("click", () => abrir(+marco.dataset.i));
-        marco.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(+marco.dataset.i); }
-        });
-      });
-      const varias = visorFotos.length > 1;
-      $("#visor-previo").hidden = !varias;
-      $("#visor-siguiente").hidden = !varias;
-      $("#galeria-pista").hidden = visorFotos.length === 0;
-    };
-    vincularFotos();
 
     $("#visor-cerrar").addEventListener("click", cerrar);
     $("#visor-previo").addEventListener("click", () => mostrar(indice - 1));
@@ -2081,12 +2301,11 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
     visor.addEventListener("click", (e) => { if (e.target === visor) cerrar(); });
     document.addEventListener("keydown", (e) => {
       if (visor.hidden) return;
-      if (e.key === "Escape") cerrar();
+      if (e.key === "Escape") { e.stopPropagation(); cerrar(); }
       if (e.key === "ArrowLeft") mostrar(indice - 1);
       if (e.key === "ArrowRight") mostrar(indice + 1);
     });
 
-    /* deslizar con el dedo */
     let x0 = null;
     visor.addEventListener("touchstart", (e) => { x0 = e.changedTouches[0].clientX; }, { passive: true });
     visor.addEventListener("touchend", (e) => {
@@ -2095,6 +2314,26 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       if (Math.abs(d) > 45) mostrar(indice + (d < 0 ? 1 : -1));
       x0 = null;
     }, { passive: true });
+  }
+
+  /* las polaroids destacadas abren su propia lista */
+  {
+    const suyas = [];
+    document.querySelectorAll(".polaroid").forEach((fig) => {
+      const img = fig.querySelector("img");
+      if (!img) return;
+      const mio = suyas.length;
+      suyas.push({ src: img.getAttribute("src"), pie: img.alt });
+      const marco = fig.querySelector(".marco");
+      marco.setAttribute("role", "button");
+      marco.setAttribute("tabindex", "0");
+      marco.setAttribute("aria-label", "Ver en grande: " + (img.alt || "foto"));
+      marco.addEventListener("click", () => abrirVisor(suyas, mio));
+      marco.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrirVisor(suyas, mio); }
+      });
+    });
+    $("#galeria-pista").hidden = suyas.length === 0;
   }
 
   /* a las fotos apaisadas se les da marco horizontal, así no se recortan tanto */
@@ -2107,37 +2346,155 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   };
   document.querySelectorAll(".polaroid img").forEach(medirOrientacion);
 
-  /* ── subir fotos a la nube ───────────────────────────────────── */
+  /* ── el álbum: todo lo que suben los dos ─────────────────────── */
 
   const nube = CONFIG.nube || {};
   if (nube.cloudName) {
-    const caja = $("#subir"), estado = $("#subir-estado");
-    const boton = $("#subir-boton"), archivo = $("#subir-archivo"), campoTitulo = $("#subir-titulo");
-    const galeria = $("#galeria");
-    caja.hidden = false;
+    const ALB = nube.album || {};
+    const etiqueta = nube.etiqueta || "nosotros";
+    const panel = $("#album-panel"), grilla = $("#album-grilla");
+    const estado = $("#subir-estado"), boton = $("#subir-boton");
+    const archivo = $("#subir-archivo"), campoTitulo = $("#subir-titulo");
 
-    const url = (r) =>
-      "https://res.cloudinary.com/" + nube.cloudName +
-      "/image/upload/f_auto,q_auto,w_1200/v" + r.version + "/" + r.public_id + "." + r.format;
+    /* cada foto guarda dos direcciones: la chiquita para la grilla y la
+       grande para el visor. Así abrir el álbum no baja fotos enormes. */
+    const base = "https://res.cloudinary.com/" + nube.cloudName + "/image/upload/";
+    const deUna = (r) => ({
+      id: r.public_id,
+      chica: base + "c_fill,g_auto,w_400,h_400,f_auto,q_auto/v" + r.version + "/" + r.public_id + "." + r.format,
+      grande: base + "w_1400,f_auto,q_auto/v" + r.version + "/" + r.public_id + "." + r.format,
+      pie: (r.context && r.context.custom && r.context.custom.caption) || "",
+      /* sólo viene al subirla, y sirve por 10 minutos */
+      token: r.delete_token || null,
+      vence: r.delete_token ? Date.now() + 10 * 60 * 1000 : 0
+    });
+
+    /* se puede borrar si hay ayudante configurado, o si todavía está a
+       tiempo de deshacerse la subida */
+    const sePuedeBorrar = (f) =>
+      !!nube.borrarUrl || (!!f.token && Date.now() < f.vence);
+
+    let fotos = [];
+
+    $("#album-titulo").textContent = ALB.titulo || "Nuestro álbum";
+    $("#album-texto").textContent = ALB.texto || "";
+    $("#album-barra-titulo").textContent = ALB.titulo || "Nuestro álbum";
+    $("#album-vacio").textContent = ALB.vacio || "Todavía no hay ninguna";
+    $("#album-cta").insertAdjacentText("afterbegin", ALB.boton || "Abrir el álbum");
+    $("#subir").hidden = false;
+    $("#album").hidden = false;
+
+    const cuantas = (n) => n === 1 ? "1 foto" : n + " fotos";
+
+    const pintarTapa = () => {
+      const n = fotos.length;
+      $("#album-cuenta").textContent = n ? cuantas(n) : (ALB.vacio || "Todavía no hay ninguna");
+      $("#album-barra-cuenta").textContent = cuantas(n);
+      $("#album-vacio").hidden = n > 0;
+      const ultimas = fotos.slice(-4).reverse();
+      $("#album-mosaico").innerHTML = ultimas.length
+        ? ultimas.map((f, i) =>
+            '<img src="' + esc(f.chica) + '" alt="" loading="lazy"' +
+            (ultimas.length === 1 ? ' class="solo"' : "") + ">").join("")
+        : '<span class="album-mosaico-vacio">' +
+          '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/></svg></span>';
+    };
+
+    const tarjeta = (f, i) =>
+      '<div class="album-foto">' +
+      '<button type="button" class="album-ver" data-i="' + i + '" aria-label="' +
+      esc(f.pie || "Ver foto " + (i + 1)) + '">' +
+      '<img src="' + esc(f.chica) + '" alt="' + esc(f.pie || "") + '" loading="lazy"></button>' +
+      (sePuedeBorrar(f)
+        ? '<button type="button" class="album-borrar" data-borrar="' + i + '" aria-label="Borrar esta foto">' +
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M5 5l14 14M19 5L5 19"/></svg></button>'
+        : "") +
+      "</div>";
+
+    /* de atrás para adelante: primero lo último que subieron */
+    const pintarGrilla = () => {
+      const orden = fotos.map((f, i) => i).reverse();
+      grilla.innerHTML = orden.map((i) => tarjeta(fotos[i], i)).join("");
+    };
+
+    grilla.addEventListener("click", async (e) => {
+      const cruz = e.target.closest(".album-borrar");
+      if (cruz) {
+        await borrarFoto(+cruz.dataset.borrar);
+        return;
+      }
+      const b = e.target.closest(".album-ver");
+      if (!b) return;
+      abrirVisor(fotos.map((f) => ({ src: f.grande, pie: f.pie })), +b.dataset.i);
+    });
+
+    /* ── borrar una foto ──────────────────────────────────────── */
+    const borrarFoto = async (i) => {
+      const f = fotos[i];
+      if (!f || !sePuedeBorrar(f)) return;
+
+      const ok = await preguntarSeguro({
+        titulo: "¿Seguro que la querés borrar?",
+        texto: f.pie
+          ? "Se va a borrar «" + f.pie + "» para siempre. Esto no se puede deshacer."
+          : "Se va a borrar para siempre. Esto no se puede deshacer.",
+        si: "Sí, borrala",
+        no: "No, dejala",
+        mini: f.chica
+      });
+      if (!ok) return;
+
+      avisar("Borrando…", false, true);
+      try {
+        if (nube.borrarUrl) {
+          const r = await fetch(nube.borrarUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ public_id: f.id })
+          });
+          if (!r.ok) throw new Error("el ayudante respondió " + r.status);
+        } else {
+          const r = await fetch("https://api.cloudinary.com/v1_1/" + nube.cloudName + "/delete_by_token", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: f.token })
+          });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok) throw new Error(j.error && j.error.message ? j.error.message : "no se pudo borrar");
+        }
+        fotos.splice(i, 1);
+        pintarGrilla();
+        pintarTapa();
+        avisar("Foto borrada.");
+        setTimeout(() => avisar(""), 3500);
+      } catch (err) {
+        avisar("No se pudo borrar: " + err.message, true);
+      }
+    };
+
+    /* abrir y cerrar el álbum */
+    const abrirAlbum = () => {
+      panel.hidden = false;
+      requestAnimationFrame(() => panel.classList.add("abierto"));
+      document.body.classList.add("bloqueado");
+      $("#album-cerrar").focus();
+    };
+    const cerrarAlbum = () => {
+      panel.classList.remove("abierto");
+      document.body.classList.remove("bloqueado");
+      setTimeout(() => { panel.hidden = true; }, 300);
+    };
+    $("#album-abrir").addEventListener("click", abrirAlbum);
+    $("#album-cerrar").addEventListener("click", cerrarAlbum);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !panel.hidden && $("#visor").hidden) cerrarAlbum();
+    });
 
     const avisar = (texto, mal, girando) => {
       estado.hidden = !texto;
       estado.classList.toggle("mal", !!mal);
       estado.innerHTML = (girando ? '<span class="girando"></span>' : "") +
         "<span>" + esc(texto) + "</span>";
-    };
-
-    /* una polaroid más en la galería */
-    const agregarPolaroid = (src, pie, subiendo) => {
-      const fig = document.createElement("figure");
-      fig.className = "polaroid" + (subiendo ? " subiendo" : "");
-      fig.innerHTML =
-        '<div class="marco"><img src="' + esc(src) + '" alt="' + esc(pie || "") + '" loading="lazy"></div>' +
-        '<span class="lupa" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21M11 8v6M8 11h6"/></svg></span>' +
-        '<figcaption class="pie">' + esc(pie || "") + "</figcaption>";
-      galeria.appendChild(fig);
-      medirOrientacion(fig.querySelector("img"));
-      return fig;
     };
 
     /* Todas las fotos, el mismo tamaño y el mismo peso, salgan del celular
@@ -2190,7 +2547,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       const datos = new FormData();
       datos.append("file", blob);
       datos.append("upload_preset", nube.preset);
-      if (nube.etiqueta) datos.append("tags", nube.etiqueta);
+      datos.append("tags", etiqueta);
       if (pie) datos.append("context", "caption=" + pie);
       const r = await fetch("https://api.cloudinary.com/v1_1/" + nube.cloudName + "/image/upload",
         { method: "POST", body: datos });
@@ -2213,19 +2570,16 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         const f = elegidas[i];
         const deCuantas = elegidas.length > 1 ? " " + (i + 1) + " de " + elegidas.length : "";
         avisar("Preparando la foto" + deCuantas + "…", false, true);
-        let fig = null;
         try {
           const chico = await comprimir(f);
           pesoTotal += chico.size;
           avisar("Subiendo la foto" + deCuantas + "…", false, true);
-          fig = agregarPolaroid(URL.createObjectURL(chico), pie, true);
           const sub = await subirUna(chico, pie);
-          fig.querySelector("img").src = url(sub);
-          fig.classList.remove("subiendo");
+          fotos.push(deUna(sub));
+          pintarGrilla();
+          pintarTapa();
           listas++;
-          vincularFotos();
         } catch (e) {
-          if (fig) fig.remove();
           avisar("No se pudo subir " + f.name + ": " + e.message, true);
           boton.disabled = false;
           return;
@@ -2241,22 +2595,24 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
     });
 
     /* traer las que ya están guardadas */
+    pintarTapa();
     (async () => {
       try {
-        const r = await fetch("https://res.cloudinary.com/" + nube.cloudName +
-          "/image/list/" + (nube.etiqueta || "nosotros") + ".json", { cache: "no-store" });
-        if (!r.ok) throw new Error("listado " + r.status);
-        const d = await r.json();
-        const guardadas = (d.resources || [])
-          .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-        for (const g of guardadas) {
-          const pie = g.context && g.context.custom ? g.context.custom.caption : "";
-          agregarPolaroid(url(g), pie || "", false);
+        const r = await fetch(base.replace("/image/upload/", "/image/list/") +
+          etiqueta + ".json", { cache: "no-store" });
+        if (!r.ok) {
+          /* 404 = todavía no hay ninguna foto con esa etiqueta */
+          if (r.status !== 404) throw new Error("listado " + r.status);
+          return;
         }
-        if (guardadas.length) vincularFotos();
+        const d = await r.json();
+        fotos = (d.resources || [])
+          .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+          .map(deUna);
+        pintarGrilla();
+        pintarTapa();
       } catch (e) {
-        /* si el listado está restringido en Cloudinary, se puede subir igual */
-        console.warn("No se pudieron leer las fotos guardadas:", e.message);
+        console.warn("No se pudieron leer las fotos del álbum:", e.message);
       }
     })();
   }
