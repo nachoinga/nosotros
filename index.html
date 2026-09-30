@@ -3033,6 +3033,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let soltarPetalos = null, plantarFlor = null, reanudarJardin = null, cambiarCancion = null;
   let soltarCorazones = null, empezarCrecer = null, soltarCrecido = null, cancelarCrecer = null;
+  let lluviaCorazones = null;
   const NO_TOCAR = "a, button, input, select, textarea, label, summary, " +
     ".portada, .visor, .reproductor, #panel, .selector, .polaroid, .cinta-scroll, .barra";
 
@@ -3126,7 +3127,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         if (p.tipo === "corazon") {
           /* los corazones suben y se van desvaneciendo */
           p.y += p.vy; p.x += p.vx + Math.sin((p.y + p.fase) / 26) * .35;
-          p.vy *= .992; p.a += p.giro; p.vida -= .013;
+          p.vy *= p.roce || .992; p.a += p.giro; p.vida -= (p.dec || .013);
           corazon(p.x, p.y, p.r, p.a, Math.max(0, Math.min(1, p.vida)) * .95, p.color ? c.centro : c.petalo);
         } else {
           p.x += p.vx; p.y += p.vy; p.vy += .07; p.vx *= .985; p.a += p.giro; p.vida -= .011;
@@ -3164,6 +3165,30 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       arrancar();
     };
 
+    /* lluvia: caen desde arriba y entran por los costados, en tandas */
+    lluviaCorazones = () => {
+      if (sinMovimiento) return;
+      const caer = (n, retraso) => setTimeout(() => {
+        for (let i = 0; i < n; i++) {
+          const lado = Math.random() < .22;
+          sueltos.push({
+            tipo: "corazon", color: Math.random() < .4,
+            x: lado ? (Math.random() < .5 ? -30 : w + 30) : Math.random() * w,
+            y: lado ? Math.random() * h * .6 : -30 - Math.random() * 160,
+            vx: lado ? (Math.random() < .5 ? 2.4 : -2.4) * (.6 + Math.random()) : (Math.random() - .5) * 1.2,
+            vy: lado ? .6 + Math.random() : 1.8 + Math.random() * 3.4,
+            r: 8 + Math.random() * 16,
+            a: (Math.random() - .5) * .6,
+            giro: (Math.random() - .5) * .05,
+            fase: Math.random() * 100,
+            roce: 1, dec: .0042, vida: 1
+          });
+        }
+        arrancar();
+      }, retraso);
+      caer(22, 0); caer(20, 220); caer(18, 460); caer(14, 720); caer(10, 1000);
+    };
+
     /* un corazón que se infla mientras se mantiene apretado */
     let creciendo = null;
     empezarCrecer = (x, y) => {
@@ -3189,7 +3214,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
     /* un puñado de corazones que suben desde donde se tocó */
     soltarCorazones = (x, y, cuantos) => {
       if (sinMovimiento) return;
-      const n = cuantos || 10;
+      const n = cuantos || 16;
       for (let i = 0; i < n; i++) {
         sueltos.push({
           tipo: "corazon", color: Math.random() < .35,
@@ -3396,12 +3421,9 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       if (previo) {
         const fuerza = Math.abs(a.x - previo.x) + Math.abs(a.y - previo.y) + Math.abs(a.z - previo.z);
         const ahora = performance.now();
-        if (fuerza > 26 && ahora - ultima > 900 && !PRIMAVERA && soltarCorazones) {
+        if (fuerza > 26 && ahora - ultima > 1600 && !PRIMAVERA && lluviaCorazones) {
           ultima = ahora;
-          for (let i = 0; i < 4; i++) {
-            soltarCorazones(Math.random() * window.innerWidth,
-                            window.innerHeight * (.25 + Math.random() * .5), 7);
-          }
+          lluviaCorazones();
         }
       }
       previo = { x: a.x || 0, y: a.y || 0, z: a.z || 0 };
