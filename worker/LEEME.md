@@ -34,3 +34,23 @@ Listo: la crucecita aparece en todas las fotos del álbum.
 
 Aun así, quien conozca la dirección de la página podría borrar una foto. Por
 eso existe el respaldo diario en `respaldo/`: si pasa algo, están en tu disco.
+
+---
+
+## Para que ella pueda escribir mensajes
+
+Hace falta darle un lugar donde guardarlos. Es gratis y son 4 clics.
+
+1. En Cloudflare: **Storage & Databases → KV → Create**. Ponele de nombre
+   `mensajes-nosotros`.
+2. Volvé a tu worker → **Settings → Bindings → Add → KV namespace**:
+   - Variable name: `MENSAJES`   (así, en mayúsculas)
+   - KV namespace: `mensajes-nosotros`
+3. Pegá de nuevo el contenido actualizado de `borrar.js` y **Deploy**.
+
+Listo. La sección "Escribime algo" aparece sola en la página.
+
+Si el KV no está, el worker responde 501 y la página simplemente no muestra
+la sección: no se rompe nada.
+
+Guarda los últimos 300 mensajes, de hasta 600 caracteres cada uno.

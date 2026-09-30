@@ -220,7 +220,23 @@ const CONFIG = {
   },
 
 
-  /* ── 8. SUBIR FOTOS (Cloudinary) ─────────────────────────────────── */
+  /* ── 8. PRÓXIMOS HITOS ───────────────────────────────────────────── */
+  // Fechas que importan. Se ordenan solas y muestran cuánto falta.
+  //   repite: "anual"  → cada año (cumpleaños)
+  //   repite: false    → una sola vez (el primer año)
+  //   dias: 500        → en vez de fecha, el día número 500 de lo nuestro
+  // Cuando una pasa, desaparece sola de la lista.
+
+  hitos: [
+    { titulo: "Tu cumpleaños",        fecha: "2026-08-11", repite: "anual" },
+    { titulo: "Mi cumpleaños",        fecha: "2026-03-27", repite: "anual" },
+    { titulo: "Nuestro primer año",   fecha: "2027-03-10", repite: false },
+    { titulo: "Día 500",              dias: 500 },
+    { titulo: "Día 1000",             dias: 1000 }
+  ],
+
+
+  /* ── 9. SUBIR FOTOS (Cloudinary) ─────────────────────────────────── */
   // Para que los dos puedan agregar fotos desde el celular y queden
   // guardadas para siempre. Mientras cloudName esté vacío, el botón de
   // subir ni aparece y la galería funciona como hasta ahora.
@@ -249,6 +265,16 @@ const CONFIG = {
     //    Cloudflare, gratis). Cuando lo tengas, pegá su direccion acá:
     borrarUrl: "https://tight-water-2041.nachoingaramo.workers.dev/",
 
+    // MENSAJES: para que ella también pueda escribir.
+    // Necesita que el worker tenga almacenamiento (ver worker/LEEME.md).
+    // Si no está, la sección no aparece y no pasa nada.
+    mensajes: {
+      titulo: "Escribime algo",
+      texto: "Lo que quieras, cuando quieras. Queda acá para los dos.",
+      quienes: ["Florencia", "Ignacio"],
+      vacio: "Todavía no hay ninguno. Estrenalo vos."
+    },
+
     // Cómo se presenta el álbum en la página
     album: {
       titulo: "Nuestro álbum",
@@ -269,7 +295,7 @@ const CONFIG = {
   },
 
 
-  /* ── 9. PRIMAVERA ───────────────────────────────────────────────── */
+  /* ── 10. PRIMAVERA ───────────────────────────────────────────────── */
   // Esto decide CÓMO ARRANCA la página cada día. Arriba, en la barra, hay
   // un botón para alternar entre rosa y primavera cuando ella quiera; lo
   // que elija se recuerda solo por ese día, y al otro día vuelve a esto:
@@ -307,7 +333,7 @@ const CONFIG = {
   },
 
 
-  /* ── 10. MODO BORRADOR ───────────────────────────────────────────── */
+  /* ── 11. MODO BORRADOR ───────────────────────────────────────────── */
   // true  → ves los pendientes y el panel que te dice qué falta.
   // false → se esconde todo lo que quedó sin completar. Ponelo en false
   //         antes de pasarle la página.
@@ -756,6 +782,80 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   font-family:var(--display);font-style:italic;font-size:1.75rem;line-height:1.15;
 }
 .hito-listo p:last-child{opacity:.85;margin-top:.5rem;font-size:.9375rem}
+
+/* ═══ PRÓXIMOS HITOS ══════════════════════════════════════════════ */
+.hitos{
+  margin-top:clamp(2rem,5vw,2.75rem);
+  padding-top:1.75rem;border-top:1px dashed var(--linea-fuerte);
+  max-width:34rem;
+}
+.hitos-rotulo{
+  font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tinta-2);margin-bottom:1rem;
+}
+.hitos ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.hitos li{
+  display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+  padding:.65rem 0;border-bottom:1px solid var(--linea);
+}
+.hitos li:last-child{border-bottom:0}
+.hitos .que{font-size:1rem}
+.hitos .cuando{
+  font-size:.8125rem;font-weight:700;color:var(--rosa-hondo);
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.hitos .hoy{
+  background:var(--rosa-hondo);color:var(--sobre-hondo);
+  padding:.15rem .6rem .2rem;border-radius:100px;
+}
+
+/* ═══ MENSAJES ════════════════════════════════════════════════════ */
+.msj-form{display:flex;flex-direction:column;gap:.75rem;max-width:34rem}
+.msj-quienes{display:flex;gap:.4rem}
+.msj-quienes button{
+  padding:.4rem 1rem .45rem;border-radius:100px;
+  border:1px solid var(--linea-fuerte);background:var(--surface);
+  font-size:.8125rem;font-weight:600;color:var(--tinta-2);
+}
+.msj-quienes button[aria-pressed="true"]{
+  background:var(--rosa-hondo);border-color:var(--rosa-hondo);color:var(--sobre-hondo);
+}
+.msj-form textarea{
+  width:100%;min-height:5.5rem;resize:vertical;
+  padding:.8rem 1rem;border:1px solid var(--linea-fuerte);border-radius:4px;
+  background:var(--surface);color:var(--tinta);font:inherit;font-size:1rem;
+  line-height:1.5;
+}
+.msj-form textarea::placeholder{color:var(--tinta-2);opacity:.75}
+.msj-enviar{
+  align-self:flex-start;
+  padding:.62rem 1.4rem .66rem;border-radius:100px;
+  background:var(--rosa-hondo);color:var(--sobre-hondo);
+  font-size:.9375rem;font-weight:700;
+}
+.msj-enviar:hover{filter:brightness(1.07)}
+.msj-enviar:disabled{opacity:.6;cursor:default}
+.msj-aviso{font-size:.875rem;color:var(--tinta-2)}
+.msj-aviso.mal{color:var(--rosa-fuerte);font-weight:600}
+.msj-lista{
+  margin-top:clamp(2rem,5vw,2.75rem);
+  display:flex;flex-direction:column;gap:1rem;max-width:34rem;
+}
+.msj{
+  border:1px solid var(--linea);border-radius:4px;
+  background:var(--surface);padding:1rem 1.15rem 1.1rem;
+}
+.msj-quien{
+  font-size:.6875rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--rosa-hondo);
+  display:flex;justify-content:space-between;gap:1rem;
+}
+.msj-quien span{color:var(--tinta-2);font-weight:600;letter-spacing:.06em}
+.msj-texto{
+  margin-top:.55rem;font-family:var(--mano);
+  font-size:1.35rem;line-height:1.35;color:var(--tinta);
+  white-space:pre-wrap;overflow-wrap:break-word;
+}
 
 /* ═══ ORNAMENTO ═══════════════════════════════════════════════════ */
 .ornamento{
@@ -1691,6 +1791,10 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       <div class="casilla"><p class="n" id="ca-m">0</p><p class="u">minutos</p></div>
       <div class="casilla"><p class="n" id="ca-s">0</p><p class="u">segundos</p></div>
     </div>
+    <div class="hitos" id="hitos" hidden>
+      <p class="hitos-rotulo">Lo que viene</p>
+      <ul id="lista-hitos"></ul>
+    </div>
     <div class="hito-listo" id="hito-listo" hidden>
       <p id="hito-listo-titulo"></p>
       <p id="hito-listo-texto"></p>
@@ -1777,6 +1881,24 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       <span class="planes-cuenta" id="planes-cuenta"></span>
     </div>
     <div class="planes" id="lista-planes"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MENSAJES ═══════════════════ -->
+<section id="mensajes" hidden>
+  <div class="envoltura">
+    <div class="cabecera-seccion">
+      <p class="rotulo">De los dos</p>
+      <h2 class="titulo" id="msj-titulo"></h2>
+      <p class="entrada" id="msj-texto"></p>
+    </div>
+    <div class="msj-form">
+      <div class="msj-quienes" id="msj-quienes" role="group" aria-label="Quién escribe"></div>
+      <textarea id="msj-campo" maxlength="600" placeholder="Escribí lo que quieras…"></textarea>
+      <button type="button" class="msj-enviar" id="msj-enviar">Dejarlo acá</button>
+      <p class="msj-aviso" id="msj-aviso" hidden></p>
+    </div>
+    <div class="msj-lista" id="msj-lista"></div>
   </div>
 </section>
 
@@ -2226,6 +2348,45 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   $("#momentos").hidden = fotos.length === 0;
   $("#galeria-pista").hidden = !fotos.some((f) => f.src);
   contar(CONFIG.momentos, "Fotos", "#momentos");
+
+  /* ── próximos hitos ─────────────────────────────────────────── */
+  const pintarHitos = () => {
+    const lista = CONFIG.hitos || [];
+    if (!lista.length) return;
+    const hoy = new Date();
+    const cero = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const hoy0 = cero(hoy);
+
+    const proximos = lista.map((h) => {
+      let cuando = null;
+      if (h.dias) {
+        cuando = new Date(INICIO.getTime());
+        cuando.setDate(cuando.getDate() + h.dias - 1);
+        cuando = cero(cuando);
+      } else if (h.fecha) {
+        cuando = cero(new Date(h.fecha + "T12:00:00"));
+        /* los que se repiten saltan al año que viene cuando ya pasaron */
+        if (h.repite === "anual") {
+          while (cuando < hoy0) cuando.setFullYear(cuando.getFullYear() + 1);
+        }
+      }
+      if (!cuando || isNaN(cuando)) return null;
+      const faltan = Math.round((cuando - hoy0) / 864e5);
+      return faltan < 0 ? null : { titulo: h.titulo, cuando, faltan };
+    }).filter(Boolean).sort((a, b) => a.faltan - b.faltan).slice(0, 5);
+
+    if (!proximos.length) return;
+    $("#lista-hitos").innerHTML = proximos.map((h) =>
+      "<li><span class=\"que\">" + esc(h.titulo) + "</span>" +
+      '<span class="cuando' + (h.faltan === 0 ? " hoy" : "") + '">' +
+      (h.faltan === 0 ? "es hoy"
+        : h.faltan === 1 ? "mañana"
+        : "faltan " + nf.format(h.faltan) + " días") +
+      "</span></li>"
+    ).join("");
+    $("#hitos").hidden = false;
+  };
+  pintarHitos();
 
   /* ── "¿estás seguro?" ───────────────────────────────────────── */
   /* Devuelve true o false. Se usa antes de cualquier cosa que no tenga
@@ -2683,6 +2844,78 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   $("#final-texto").textContent = fin.texto || "";
   $("#final-firma").textContent = fin.firma || "";
   $("#final").hidden = !fin.frase;
+
+  /* ── mensajes: para que ella también escriba ─────────────────── */
+  {
+    const dir = (CONFIG.nube || {}).borrarUrl;
+    const M = (CONFIG.nube || {}).mensajes;
+    if (dir && M) {
+      const base = dir.replace(/\/+$/, "") + "/mensajes";
+      const quienes = M.quienes || ["Ella", "Yo"];
+      let quien = quienes[0];
+
+      $("#msj-titulo").textContent = M.titulo || "Escribime algo";
+      $("#msj-texto").textContent = M.texto || "";
+      $("#msj-quienes").innerHTML = quienes.map((q, i) =>
+        '<button type="button" data-q="' + esc(q) + '" aria-pressed="' + (i === 0) + '">' +
+        esc(q) + "</button>").join("");
+
+      $("#msj-quienes").addEventListener("click", (e) => {
+        const b = e.target.closest("button");
+        if (!b) return;
+        quien = b.dataset.q;
+        $("#msj-quienes").querySelectorAll("button").forEach((x) =>
+          x.setAttribute("aria-pressed", String(x === b)));
+      });
+
+      const avisar = (t, mal) => {
+        const a = $("#msj-aviso");
+        a.hidden = !t; a.textContent = t || "";
+        a.classList.toggle("mal", !!mal);
+      };
+
+      const pintar = (ms) => {
+        $("#msj-lista").innerHTML = ms.length
+          ? ms.map((m) => {
+              const f = new Date(m.fecha);
+              return '<article class="msj"><p class="msj-quien">' + esc(m.de) +
+                "<span>" + (isNaN(f) ? "" : esc(capital(fmtFecha(f,
+                  { day: "numeric", month: "long" })))) + "</span></p>" +
+                '<p class="msj-texto">' + esc(m.texto) + "</p></article>";
+            }).join("")
+          : '<p class="msj-aviso">' + esc(M.vacio || "Todavía no hay ninguno.") + "</p>";
+      };
+
+      $("#msj-enviar").addEventListener("click", async () => {
+        const campo = $("#msj-campo"), texto = campo.value.trim();
+        if (!texto) { avisar("Escribí algo primero.", true); campo.focus(); return; }
+        const btn = $("#msj-enviar");
+        btn.disabled = true; avisar("Guardando…");
+        try {
+          const r = await fetch(base, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ de: quien, texto })
+          });
+          if (!r.ok) throw new Error("respondió " + r.status);
+          const d = await r.json();
+          campo.value = "";
+          pintar(d.mensajes || []);
+          avisar("Listo, quedó guardado.");
+          setTimeout(() => avisar(""), 4000);
+        } catch (err) {
+          avisar("No se pudo guardar: " + err.message, true);
+        }
+        btn.disabled = false;
+      });
+
+      /* si el almacenamiento todavía no está, la sección ni aparece */
+      fetch(base, { cache: "no-store" })
+        .then((r) => r.ok ? r.json() : Promise.reject(new Error("sin almacenamiento")))
+        .then((d) => { pintar(d.mensajes || []); $("#mensajes").hidden = false; })
+        .catch((e) => console.warn("Mensajes desactivados:", e.message));
+    }
+  }
 
   /* ── primavera ──────────────────────────────────────────────── */
 
