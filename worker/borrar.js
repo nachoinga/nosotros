@@ -6,15 +6,17 @@ const CLOUD = "umxsjun3";
 const TAG = "nosotros";
 const DESDE = "https://nachoinga.github.io";
 
+const CABECERAS = {
+  "Access-Control-Allow-Origin": DESDE,
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Max-Age": "86400",
+};
+
 const responder = (datos, estado) =>
   new Response(JSON.stringify(datos), {
     status: estado,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": DESDE,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
+    headers: { "Content-Type": "application/json", ...CABECERAS },
   });
 
 async function firmar(texto) {
@@ -24,7 +26,7 @@ async function firmar(texto) {
 
 export default {
   async fetch(pedido, entorno) {
-    if (pedido.method === "OPTIONS") return responder({}, 204);
+    if (pedido.method === "OPTIONS") return new Response(null, { status: 204, headers: CABECERAS });
     if (pedido.method !== "POST") return responder({ error: "solo POST" }, 405);
 
     const { public_id } = await pedido.json().catch(() => ({}));
