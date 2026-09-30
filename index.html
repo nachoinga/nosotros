@@ -3033,7 +3033,8 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let soltarPetalos = null, plantarFlor = null, reanudarJardin = null, cambiarCancion = null;
   let soltarCorazones = null, empezarCrecer = null, soltarCrecido = null, cancelarCrecer = null;
-  let lluviaCorazones = null;
+  let lluviaCorazones = null, rastroCorazon = null, pincharGlobo = null;
+  const inclinacion = { x: 0, y: 0 };
   const NO_TOCAR = "a, button, input, select, textarea, label, summary, " +
     ".portada, .visor, .reproductor, #panel, .selector, .polaroid, .cinta-scroll, .barra";
 
@@ -3117,6 +3118,13 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         const pop = 1 + 2.7 * Math.pow(u - 1, 3) + 1.7 * Math.pow(u - 1, 2); /* ease-out-back */
         flor(f.x, f.y, f.r * pop, f.a + (sinMovimiento ? 0 : Math.sin(t * .012 + f.fase) * .06), f.n, f.op, c);
       }
+      globos = globos.filter((g) => g.y > -60);
+      for (const g of globos) {
+        g.y -= g.v;
+        g.x += Math.sin((g.y + g.fase) / 55) * .5 + inclinacion.x * .35;
+        const late = 1 + Math.sin(ahoraMs / 260 + g.fase) * .07;
+        corazon(g.x, g.y, g.r * late, Math.sin((g.y + g.fase) / 90) * .25, .5, c.petalo);
+      }
       if (creciendo) {
         const r = Math.min(64, 9 + (ahoraMs - creciendo.nac) / 26);
         const late = 1 + Math.sin(ahoraMs / 140) * .05;
@@ -3127,6 +3135,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         if (p.tipo === "corazon") {
           /* los corazones suben y se van desvaneciendo */
           p.y += p.vy; p.x += p.vx + Math.sin((p.y + p.fase) / 26) * .35;
+          p.vx += inclinacion.x * .07; p.vy += inclinacion.y * .05;
           p.vy *= p.roce || .992; p.a += p.giro; p.vida -= (p.dec || .013);
           corazon(p.x, p.y, p.r, p.a, Math.max(0, Math.min(1, p.vida)) * .95, p.color ? c.centro : c.petalo);
         } else {
@@ -3143,7 +3152,9 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       const naciendo = plantadas.some((f) => ahoraMs - f.nac < 700);
       if (!PRIMAVERA) {
         /* en rosa el lienzo descansa cuando no queda ningún corazón */
-        if (!sueltos.length && !creciendo) { ctx.clearRect(0, 0, w, h); corriendo = false; return; }
+        if (!sueltos.length && !creciendo && !globos.length) {
+          ctx.clearRect(0, 0, w, h); corriendo = false; return;
+        }
       } else if (sinMovimiento && !sueltos.length && !naciendo) { corriendo = false; return; }
       requestAnimationFrame(cuadro);
     };
@@ -3163,6 +3174,34 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         });
       }
       arrancar();
+    };
+
+    /* corazones que flotan solos y se pinchan al tocarlos */
+    let globos = [];
+    const soltarGlobo = () => {
+      if (sinMovimiento || PRIMAVERA || document.hidden || globos.length >= 3) return;
+      globos.push({
+        x: 40 + Math.random() * Math.max(1, w - 80),
+        y: h + 40,
+        r: 20 + Math.random() * 16,
+        v: .45 + Math.random() * .4,
+        fase: Math.random() * 100
+      });
+      arrancar();
+    };
+    setInterval(soltarGlobo, 7000);
+    setTimeout(soltarGlobo, 2500);
+
+    pincharGlobo = (x, y) => {
+      for (let i = globos.length - 1; i >= 0; i--) {
+        const g = globos[i];
+        if (Math.hypot(x - g.x, y - g.y) < g.r + 14) {
+          globos.splice(i, 1);
+          soltarCorazones(g.x, g.y, 12);
+          return true;
+        }
+      }
+      return false;
     };
 
     /* lluvia: caen desde arriba y entran por los costados, en tandas */
@@ -3187,6 +3226,20 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         arrancar();
       }, retraso);
       caer(22, 0); caer(20, 220); caer(18, 460); caer(14, 720); caer(10, 1000);
+    };
+
+    /* rastro: va soltando corazoncitos por donde pasa el dedo */
+    rastroCorazon = (x, y) => {
+      if (sinMovimiento) return;
+      sueltos.push({
+        tipo: "corazon", color: Math.random() < .3,
+        x, y,
+        vx: (Math.random() - .5) * .7, vy: -.35 - Math.random() * .5,
+        r: 6 + Math.random() * 7, a: (Math.random() - .5) * .4,
+        giro: (Math.random() - .5) * .03, fase: Math.random() * 100,
+        dec: .016, vida: 1
+      });
+      arrancar();
     };
 
     /* un corazón que se infla mientras se mantiene apretado */
@@ -3385,15 +3438,25 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       !PRIMAVERA && !e.target.closest(NO_TOCAR) && $("#portada").hidden;
     let desde = 0, x0 = 0, y0 = 0, activo = false;
 
+    let arrastrando = false, ultimoRastro = 0;
+
     document.addEventListener("pointerdown", (e) => {
       if (!libre(e) || !empezarCrecer) return;
-      desde = performance.now(); x0 = e.clientX; y0 = e.clientY; activo = true;
+      /* si había un corazón flotando justo ahí, lo pincha y listo */
+      if (pincharGlobo && pincharGlobo(e.clientX, e.clientY)) return;
+      desde = performance.now(); x0 = e.clientX; y0 = e.clientY;
+      activo = true; arrastrando = false;
       empezarCrecer(e.clientX, e.clientY);
     });
     document.addEventListener("pointermove", (e) => {
-      /* si arrastra o scrollea, no era un apretón */
       if (activo && Math.hypot(e.clientX - x0, e.clientY - y0) > 12) {
-        activo = false; if (cancelarCrecer) cancelarCrecer();
+        /* dejó de ser un apretón: de acá en más va dejando rastro */
+        activo = false; arrastrando = true;
+        if (cancelarCrecer) cancelarCrecer();
+      }
+      if (arrastrando && rastroCorazon) {
+        const ahora = performance.now();
+        if (ahora - ultimoRastro > 45) { ultimoRastro = ahora; rastroCorazon(e.clientX, e.clientY); }
       }
     }, { passive: true });
     const soltar = () => {
@@ -3405,9 +3468,9 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         if (soltarCorazones) soltarCorazones(x0, y0);
       } else if (soltarCrecido) soltarCrecido();
     };
-    document.addEventListener("pointerup", soltar);
+    document.addEventListener("pointerup", () => { soltar(); arrastrando = false; });
     document.addEventListener("pointercancel", () => {
-      activo = false; if (cancelarCrecer) cancelarCrecer();
+      activo = false; arrastrando = false; if (cancelarCrecer) cancelarCrecer();
     });
   }
 
@@ -3429,16 +3492,26 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       previo = { x: a.x || 0, y: a.y || 0, z: a.z || 0 };
     };
 
+    /* inclinar el teléfono: los corazones se van para ese lado */
+    const alInclinar = (e) => {
+      if (e.gamma === null || e.beta === null) return;
+      inclinacion.x = Math.max(-1, Math.min(1, (e.gamma || 0) / 45));
+      inclinacion.y = Math.max(-1, Math.min(1, ((e.beta || 0) - 45) / 45));
+    };
+
     const pedirPermiso = () => {
-      const D = window.DeviceMotionEvent;
-      if (!D) return;
-      if (typeof D.requestPermission === "function") {
-        D.requestPermission().then((r) => {
+      const M = window.DeviceMotionEvent, O = window.DeviceOrientationEvent;
+      if (M && typeof M.requestPermission === "function") {
+        M.requestPermission().then((r) => {
           if (r === "granted") window.addEventListener("devicemotion", alSacudir);
         }).catch(() => {});
-      } else {
-        window.addEventListener("devicemotion", alSacudir);
-      }
+      } else if (M) window.addEventListener("devicemotion", alSacudir);
+
+      if (O && typeof O.requestPermission === "function") {
+        O.requestPermission().then((r) => {
+          if (r === "granted") window.addEventListener("deviceorientation", alInclinar);
+        }).catch(() => {});
+      } else if (O) window.addEventListener("deviceorientation", alInclinar);
     };
     document.addEventListener("pointerdown", pedirPermiso, { once: true });
   }
