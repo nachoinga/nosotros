@@ -27,6 +27,26 @@ que él vaya a editar, va al `CONFIG`.
 El archivo tiene dos marcas, `<!--ARTIFACT-INICIO-->` y `<!--ARTIFACT-FIN-->`,
 de cuando se publicaba como Artifact. Ya no se usa: el canal es GitHub Pages.
 
+## Qué es cada archivo
+
+| Archivo | Qué es |
+|---|---|
+| `index.html` | **Todo**: contenido, estilos y comportamiento. Es la página. |
+| `CLAUDE.md` | Este archivo. Mantenerlo al día al agregar algo. |
+| `PARA-VOS.md` | El manual de Ignacio, en criollo. **Actualizarlo también.** |
+| `fotos/`, `musica/` | Las 6 polaroids y las dos canciones. Viajan en el repo. |
+| `worker/borrar.js` | El código del worker de Cloudflare. Ver aviso abajo. |
+| `worker/LEEME.md` | Cómo montar el worker y el KV desde cero. |
+| `respaldo.ps1` | Baja las fotos del álbum a `respaldo/`. Corre solo. |
+| `limpiar-pruebas.ps1` | Borra de Cloudinary etiquetas de prueba. Pide credenciales por variable de entorno. |
+
+> **Aviso sobre el worker.** `worker/borrar.js` es sólo una copia. Cloudflare
+> no lo lee del repo: hacer push **no despliega nada**. Si se toca ese
+> archivo, hay que decirle a Ignacio que lo pegue a mano en Cloudflare
+> (Workers & Pages → el worker → Edit code → Ctrl+A → pegar → Deploy).
+> Para dárselo cómodo:
+> `Get-Content "workerorrar.js" -Raw | Set-Clipboard`
+
 ## Las piezas
 
 | Sección | Qué hace |
@@ -89,9 +109,10 @@ recién después achica más. Así no importa qué celular la sacó. La grilla p
 miniaturas de 400×400; la grande sólo al abrir el visor.
 
 **Borrar no se puede sin la clave secreta, y esa clave no puede ir en la
-página porque es pública.** La crucecita aparece sólo si hay con qué: el token
-de 10 minutos que devuelve la subida (hay que tildar "Return delete token" en
-el preset) o un ayudante propio en `CONFIG.nube.borrarUrl`.
+página porque es pública.** Por eso existe el worker, ya configurado en
+`CONFIG.nube.borrarUrl`. La crucecita funciona.
+
+Hoy el álbum tiene 8 fotos.
 
 ## Respaldo
 
@@ -122,8 +143,7 @@ carpetas `respaldo/` y `fotos-originales/` están en `.gitignore`.
 
 ## Cómo hacer un cambio sin romper nada
 
-Seguir los seis pasos en orden. El 3 y el 6 son los que más veces salvaron
-la página.
+Siete pasos, en orden. El 3 y el 6 son los que más veces salvaron la página.
 
 1. **Ubicar dónde va.** Si es texto, una foto, una fecha o una canción, va en
    el `CONFIG`. Sólo bajar al CSS o al JavaScript si el cambio es de
@@ -159,6 +179,10 @@ la página.
    ```
    Comparar contra `git rev-parse HEAD`. Puede tardar hasta 7 minutos.
 
+7. **Dejar la documentación al día.** Si se agregó algo que Ignacio vaya a
+   tocar, va a `PARA-VOS.md`; si es algo que conviene saber antes de tocar el
+   código, va acá. Ya pasó de quedar media sesión sin documentar.
+
 **Nunca romper:** `figure,figcaption{margin:0}` del reset; la clase
 `primavera` que se pone antes del primer dibujado; el techo de peso al
 comprimir; el cálculo de "día N" por fecha de calendario.
@@ -183,7 +207,7 @@ bajadas de la nube) no están en el repo. Si importan, copiarlas a mano.
 
 ## Estado
 
-Terminada y funcionando. Lo hecho hasta el 30/09/2026:
+Terminada y funcionando. Lo hecho hasta el 01/10/2026:
 
 - Contador en vivo, cinta métrica, historia con tramo abierto, cosas tuyas,
   6 polaroids, planes tildables, cierre.
@@ -192,7 +216,7 @@ Terminada y funcionando. Lo hecho hasta el 30/09/2026:
 - Álbum: subir desde el celular con compresión con techo, ver en grande,
   descargar y borrar con confirmación.
 - Próximos hitos, mensajes de los dos y botón "Te extraño" compartido.
-- Cinco gestos con corazones, más sacudir e inclinar el teléfono.
+- Seis gestos con corazones, incluidos sacudir e inclinar el teléfono.
 - Borrado real vía worker de Cloudflare: `tight-water-2041.nachoingaramo.workers.dev`
   (guarda la clave secreta fuera de la página; sólo borra del álbum).
   El mismo worker sirve `/mensajes` y `/extrano`, guardados en un KV atado
