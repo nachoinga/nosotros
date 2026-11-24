@@ -295,6 +295,27 @@ const CONFIG = {
       listo: "Ya la tenés instalada."
     },
 
+    // EL AVISO DEL DÍA 10: cada día 10, a las 10 de la mañana, el celular
+    // avisa "+1 mes juntos". Hay que tener la página instalada (ver "app") y
+    // tocar una vez el botón de activar. {n} es la cantidad de meses, y se
+    // calcula sola. "ella" y "yo" son los textos de cada uno (salen de
+    // CONFIG.nombres). Si se cambia "clavePublica" hay que reactivarlo en
+    // cada celular. Necesita el worker (ver worker/LEEME.md).
+    aviso: {
+      clavePublica: "BKmu0AwFANmU4Ki8Tql53KR9rh7V55ggNEc8FNm33-_ZwGp9_2ReNOiH2OnRv-Np9N5gcj0tmSSvU78sh1t9_OA",
+      rotulo: "El aviso",
+      titulo: "El aviso del día 10",
+      texto: "Cada día 10, a las 10 de la mañana, el celu te avisa que cumplimos un mes más.",
+      quien: "¿Quién sos?",
+      boton: "Activar el aviso del día 10",
+      listo: "Listo. El día 10, a las 10, te llega el aviso.",
+      denegado: "El permiso quedó bloqueado. Se cambia desde los ajustes del celular.",
+      noSoportado: "Este celular no deja recibir avisos de la página.",
+      error: "No se pudo activar el aviso",
+      ella: { titulo: "💗 +1 mes juntos", texto: "Hoy cumplimos {n} meses. Te amo con mi corazoncito." },
+      yo:   { titulo: "💗 +1 mes juntos", texto: "Hoy cumplimos {n} meses." }
+    },
+
     // MENSAJES: para que ella también pueda escribir.
     // Necesita que el worker tenga almacenamiento (ver worker/LEEME.md).
     // Si no está, la sección no aparece y no pasa nada.
@@ -3089,44 +3110,152 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
     }
   }
 
-  /* ── la app: instalarla en la pantalla de inicio ─────────────── */
+  /* ── la app: instalarla, y activar el aviso del día 10 ─────────── */
   const enApp = window.matchMedia("(display-mode: standalone)").matches ||
     navigator.standalone === true;
   const esIPhone = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   {
     const A = (CONFIG.nube || {}).app;
-    let oferta = null; /* el evento que Android deja para mostrar su cuadro de instalar */
+    const AV = (CONFIG.nube || {}).aviso;
+    const dirAviso = ((CONFIG.nube || {}).borrarUrl || "").replace(/\/+$/, "");
+    const quienes = (CONFIG.nube || {}).quienes || [];
+    const soportaPush = !!(AV && dirAviso && "serviceWorker" in navigator &&
+      "PushManager" in window && "Notification" in window);
+    let oferta = null;      /* el evento que Android deja para mostrar su cuadro de instalar */
+    let quienAviso = null;  /* quién dijo que es, en los botones */
+
+    const guardado = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+    const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
 
     /* el service worker no se puede registrar abriendo el archivo suelto */
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker.register("sw.js").catch(() => {});
     }
 
-    const pintarApp = () => {
-      const caja = $("#app-estado");
-      let contenido = "";
-      if (!A || enApp) { $("#app").hidden = true; return; }
-      if (oferta) {
-        contenido = '<button type="button" class="extrano-boton" id="app-instalar">' +
-          esc(A.boton || "Instalar") + "</button>";
-      } else if (esIPhone) {
-        contenido = '<p class="app-nota">' + esc(A.ios || "") + "</p>";
+    /* Lo que el service worker necesita para escribir el aviso lo deja
+       la página en IndexedDB. Se vuelve a guardar en cada carga, así un
+       cambio de texto en el CONFIG llega con sólo abrir la app. */
+    const guardarDatosAviso = (quien) => new Promise((ok, mal) => {
+      const q = indexedDB.open("nosotros-aviso", 1);
+      q.onupgradeneeded = () => q.result.createObjectStore("datos");
+      q.onerror = () => mal(q.error);
+      q.onsuccess = () => {
+        const tx = q.result.transaction("datos", "readwrite");
+        tx.objectStore("datos").put({
+          inicio: CONFIG.inicio,
+          quien: quien,
+          nombres: CONFIG.nombres,
+          textos: { ella: AV.ella, yo: AV.yo }
+        }, "config");
+        tx.oncomplete = () => { q.result.close(); ok(); };
+        tx.onerror = () => mal(tx.error);
+      };
+    });
+
+    if (soportaPush && guardado("aviso-quien") && Notification.permission === "granted") {
+      guardarDatosAviso(guardado("aviso-quien")).catch(() => {});
+    }
+
+    const aBytes = (b64) => {
+      const s = atob(b64.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - b64.length % 4) % 4));
+      return Uint8Array.from(s, (c) => c.charCodeAt(0));
+    };
+
+    const decir = (texto, mal) => {
+      const e = $("#aviso-estado");
+      if (!e) return;
+      e.hidden = !texto; e.textContent = texto || "";
+      e.style.color = mal ? "var(--rosa-fuerte)" : "";
+    };
+
+    const activar = async () => {
+      const btn = $("#aviso-activar");
+      btn.disabled = true;
+      decir("");
+      try {
+        /* el permiso se pide primero: iPhone sólo lo deja dentro del toque */
+        const permiso = await Notification.requestPermission();
+        if (permiso !== "granted") { pintarApp(); return; }
+        const reg = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise((_, no) => setTimeout(() => no(new Error("el service worker no arrancó")), 10000))
+        ]);
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: aBytes(AV.clavePublica)
+        });
+        const r = await fetch(dirAviso + "/suscribir", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ de: quienAviso, sub: sub.toJSON() })
+        });
+        if (!r.ok) throw new Error("el ayudante respondió " + r.status);
+        guardar("aviso-activado", "1");
+        guardar("aviso-quien", quienAviso);
+        await guardarDatosAviso(quienAviso);
+        pintarApp();
+      } catch (err) {
+        btn.disabled = false;
+        decir((AV.error || "No se pudo activar") + ": " + err.message, true);
       }
+    };
+
+    const nota = (t) => '<p class="app-nota">' + esc(t || "") + "</p>";
+
+    const parteAviso = () => {
+      if (!AV) return "";
+      if (!soportaPush) return enApp ? nota(AV.noSoportado) : "";
+      if (!enApp && esIPhone) return ""; /* en iPhone, primero instalarla */
+      if (Notification.permission === "denied") return nota(AV.denegado);
+      if (guardado("aviso-activado") && Notification.permission === "granted") return nota(AV.listo);
+      return '<p class="app-nota">' + esc(AV.quien || "") + "</p>" +
+        '<div class="msj-quienes" id="aviso-quienes" role="group" aria-label="' + esc(AV.quien || "") + '">' +
+        quienes.map((q) => '<button type="button" data-q="' + esc(q) + '" aria-pressed="' +
+          (q === quienAviso) + '">' + esc(q) + "</button>").join("") + "</div>" +
+        '<button type="button" class="extrano-boton" id="aviso-activar"' +
+        (quienAviso ? "" : " disabled") + ">" + esc(AV.boton || "Activar") + "</button>" +
+        '<p class="app-nota" id="aviso-estado" hidden></p>';
+    };
+
+    const pintarApp = () => {
+      if (!A) { $("#app").hidden = true; return; }
+      let contenido = "";
+      if (!enApp && oferta) {
+        contenido += '<button type="button" class="extrano-boton" id="app-instalar">' +
+          esc(A.boton || "Instalar") + "</button>";
+      } else if (!enApp && esIPhone) {
+        contenido += nota(A.ios);
+      }
+      contenido += parteAviso();
       $("#app").hidden = !contenido;
       if (!contenido) return;
-      $("#app-rotulo").textContent = A.rotulo || "";
-      $("#app-titulo").textContent = A.titulo || "";
-      $("#app-texto").textContent = A.texto || "";
-      caja.innerHTML = contenido;
-      const b = $("#app-instalar");
-      if (b) b.addEventListener("click", async () => {
+
+      /* ya instalada: el encabezado habla del aviso; si no, de instalarla */
+      const cab = enApp && AV ? AV : A;
+      $("#app-rotulo").textContent = cab.rotulo || "";
+      $("#app-titulo").textContent = cab.titulo || "";
+      $("#app-texto").textContent = cab.texto || "";
+      $("#app-estado").innerHTML = contenido;
+
+      const inst = $("#app-instalar");
+      if (inst) inst.addEventListener("click", async () => {
         const e = oferta; oferta = null;
         if (!e) return;
         e.prompt();
         try { await e.userChoice; } catch (err) {}
         pintarApp();
       });
+      const grupo = $("#aviso-quienes");
+      if (grupo) grupo.addEventListener("click", (e) => {
+        const b = e.target.closest("button");
+        if (!b) return;
+        quienAviso = b.dataset.q;
+        grupo.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        $("#aviso-activar").disabled = false;
+      });
+      const act = $("#aviso-activar");
+      if (act) act.addEventListener("click", activar);
     };
 
     window.addEventListener("beforeinstallprompt", (e) => {
@@ -3134,7 +3263,7 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
     });
     window.addEventListener("appinstalled", () => {
       oferta = null;
-      if (A) { $("#app-estado").innerHTML = '<p class="app-nota">' + esc(A.listo || "") + "</p>"; }
+      if (A) { $("#app-estado").innerHTML = nota(A.listo); }
     });
     pintarApp();
   }
