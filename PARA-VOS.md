@@ -169,6 +169,28 @@ sol, si está en oscuro). Con eso ella elige cómo verla y **queda recordado en
 su teléfono**, no vence. Si nunca lo toca, la página sigue el modo que tenga
 el celular. No hay nada que configurar en el `CONFIG`.
 
+## Llevarla en el celu y el aviso del día 10
+
+Hay una tarjeta antes del cierre rosa, "Llevala en el celu":
+
+- **Instalarla.** En Android sale un botón "Instalar". En iPhone se hace a mano:
+  tocar el botón Compartir y después "Agregar a inicio". Queda con su ícono y
+  abre sin la barra del navegador. Los textos están en `nube > app`.
+- **Activar el aviso.** Ya instalada, la tarjeta cambia a "El aviso del día 10"
+  con un botón. Se toca una vez y se acepta el permiso. Desde ese momento, **el
+  día 10 de cada mes a las 10 de la mañana** el celular muestra "+1 mes juntos".
+  Los textos de ella y los tuyos están en `nube > aviso` (`ella` y `yo`); `{n}`
+  se reemplaza solo por los meses. El tuyo ya está activado. **El de ella falta:**
+  tiene que instalar la app y tocar el botón desde su celular.
+- **En iPhone** el aviso sólo anda con la app instalada (iOS 16.4 o más nuevo).
+  Si el celular tiene el switch de silencio, igual aparece la notificación.
+- **Si cambiás el texto** del aviso, se actualiza solo en cuanto abran la app.
+- **Si cambiás de celular**, hay que volver a activarlo ahí.
+- **Si no le llega:** mirá que la app esté instalada y el permiso aceptado en los
+  ajustes del celular. Los teléfonos a veces demoran un aviso unos minutos.
+- **Para probarlo** hay que programar un disparo a mano en Cloudflare (ver
+  `worker/LEEME.md`), y acordate de devolverlo al día 10 después.
+
 ## Lo que ella puede hacer en la página
 
 - **Tocar una foto** y verla en grande, con el pie de foto. Se pasa de una a

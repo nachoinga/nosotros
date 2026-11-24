@@ -19,7 +19,9 @@ cortada), avisarle en una línea y dejar que decida.
 
 ## La regla que ordena todo el archivo
 
-`index.html` es **un solo archivo autocontenido**, ~3.800 líneas. Todo el
+`index.html` es **la página**: un solo archivo autocontenido, ~3.900 líneas. Desde
+la app instalable hay además `sw.js`, `aviso-texto.js`, `manifest.webmanifest`
+e `iconos/`, que **no tienen contenido editable**. Todo el
 contenido vive en el objeto `CONFIG` de arriba de todo, con comentarios en
 español. **Nada de contenido hardcodeado más abajo.** Si hay que agregar algo
 que él vaya a editar, va al `CONFIG`.
@@ -37,6 +39,11 @@ de cuando se publicaba como Artifact. Ya no se usa: el canal es GitHub Pages.
 | `fotos/`, `musica/` | Las 6 polaroids y las dos canciones. Viajan en el repo. |
 | `worker/borrar.js` | El código del worker de Cloudflare. Ver aviso abajo. |
 | `worker/LEEME.md` | Cómo montar el worker y el KV desde cero. |
+| `sw.js` | Service worker: recibe el aviso del día 10 y lo muestra. **Sin `fetch` ni caché, a propósito.** |
+| `aviso-texto.js` | Lógica pura del texto del aviso (la usan `sw.js` y las pruebas). |
+| `manifest.webmanifest`, `iconos/` | Lo que hace falta para instalar la página como app. `iconos/generar.mjs` dibuja los PNG. |
+| `worker/aviso.test.mjs` | Pruebas del aviso: `node --test worker/aviso.test.mjs` (16 pruebas). |
+| `docs/superpowers/` | Diseño y plan de la app instalable y el aviso. |
 | `respaldo.ps1` | Baja las fotos del álbum a `respaldo/`. Corre solo. |
 | `limpiar-pruebas.ps1` | Borra de Cloudinary etiquetas de prueba. Pide credenciales por variable de entorno. |
 
@@ -45,7 +52,11 @@ de cuando se publicaba como Artifact. Ya no se usa: el canal es GitHub Pages.
 > archivo, hay que decirle a Ignacio que lo pegue a mano en Cloudflare
 > (Workers & Pages → el worker → Edit code → Ctrl+A → pegar → Deploy).
 > Para dárselo cómodo:
-> `Get-Content "workerorrar.js" -Raw | Set-Clipboard`
+> `Get-Content "worker\borrar.js" -Raw | Set-Clipboard`
+>
+> El worker ahora también tiene **un disparo programado (cron)** y dos claves
+> propias: secreto `VAPID_PRIVADA` y variable `VAPID_PUBLICA`. Ver "App instalable
+> y aviso del día 10".
 
 ## Las piezas
 
@@ -60,6 +71,7 @@ de cuando se publicaba como Artifact. Ya no se usa: el canal es GitHub Pages.
 | El álbum | Sección aparte, se abre a pantalla completa. Todas las fotos en miniatura, con subida y borrado. |
 | Próximos hitos | Dentro de "El próximo diez". Lista lo que viene con cuánto falta. Los cumpleaños se repiten solos cada año y lo que pasa desaparece. Acepta fecha o número de día ("Día 500"). |
 | Mensajes | Los dos pueden escribir. Se guardan en un KV de Cloudflare vía el worker. Incluye el botón "Te extraño", un contador compartido: lo aprieta uno y el otro lo ve subir. |
+| App y aviso del 10 | Tarjeta antes del cierre: instalar la página como app y activar el aviso. El día 10 a las 10:00 (Argentina) llega "+1 mes juntos" a cada teléfono activado. Ver abajo. |
 | El cierre | Bloque final en rosa fuerte, con los días contados en vivo. |
 
 `CONFIG.nube.quienes` es la lista de nombres, compartida por las fotos (quién
@@ -102,6 +114,44 @@ Se combina con la primavera: hay cuatro paletas.
 En primavera suena `primaveraMusica` (Flores Amarillas) en vez de `musica`
 (Puesto), con su propia frase de portada. Todo cuelga de la clase `primavera`
 en `<html>`, que se pone **antes del primer dibujado** para que no parpadee.
+
+## App instalable y aviso del día 10
+
+- **Instalar:** `manifest.webmanifest` + `sw.js`. En Android sale un botón
+  (evento `beforeinstallprompt`); en iPhone se explica "Compartir ▸ Agregar a
+  inicio". Textos en `CONFIG.nube.app`.
+- **El aviso viaja VACÍO.** El cron del worker (`0 13 10 * *`, o sea 13:00 UTC =
+  10:00 en Argentina) manda un push sin contenido, firmado con VAPID (ES256,
+  WebCrypto). El texto lo arma el propio teléfono en `sw.js` con
+  `aviso-texto.js`. Si hoy no es día 10 muestra "Prueba del aviso del día 10".
+  Si no hay datos guardados muestra uno genérico: **siempre muestra algo**,
+  porque iPhone revoca el permiso si llega un push sin notificación.
+- **Datos para el service worker:** la página los guarda en IndexedDB
+  (`nosotros-aviso` / `datos` / `config`) en cada carga: `inicio`, `quien`,
+  `nombres` y `textos`. Así los textos y la fecha siguen viviendo sólo en el
+  `CONFIG`. Los dos lados abren la base con `onupgradeneeded` que crea el almacén.
+- **Quién es quién:** la tarjeta es para ella; quien toca "Activar" queda anotada
+  como `CONFIG.nombres.ella`. El de Ignacio ya está activado (anotado como
+  `Ignacio`). Si cambia de celular hay que volver a activarlo (la tarjeta no
+  deja elegir otro nombre).
+- **Suscripciones:** `POST /suscribir` guarda en el KV `MENSAJES`, clave `avisos`
+  (máx. 20, sin duplicar, sólo hosts de Apple/Google/Mozilla/Microsoft). Las
+  vencidas (404/410) se borran solas al enviar.
+- **Claves:** `VAPID_PUBLICA` está en el `CONFIG` (`nube.aviso.clavePublica`) y
+  como variable del worker; `VAPID_PRIVADA` es secreto del worker y **no está en
+  ningún archivo**. Si se cambia la pública, hay que reactivar en cada teléfono.
+- **iPhone:** sólo con la app instalada, iOS 16.4+, y el permiso pedido dentro de
+  un toque. En Android con Chrome anda sin instalar.
+- **Probar:** programar en Cloudflare (Worker ▸ Settings ▸ Trigger events) un cron
+  puntual y **dejar al menos 15 minutos de margen**: un cambio guardado con
+  3 minutos de anticipación no salió. Después **volver a `0 13 10 * *`**; un cron
+  de prueba diario se repetiría todos los días.
+- **El panel del navegador del escritorio de Claude no soporta service workers**:
+  `sw.js` sólo se prueba en un teléfono real (o con las pruebas de Node, que
+  simulan el evento `push`).
+- **Desplegar el worker:** el editor de Cloudflare no recibe `Ctrl+V` automático.
+  Se copia con `Get-Content "worker\borrar.js" -Raw | Set-Clipboard` y lo pega
+  una persona.
 
 ## Las fotos (Cloudinary)
 
@@ -230,10 +280,17 @@ Terminada y funcionando. Lo hecho hasta el 01/10/2026:
   con el nombre de variable `MENSAJES`. Si el KV falta, responde 501 y esas
   secciones no aparecen: la página no se rompe.
 - Respaldo diario a las 21:00 por el Programador de tareas de Windows.
+- Botón claro/oscuro en la barra (se recuerda en el teléfono, sin vencer).
+- App instalable y aviso del día 10 a las 10:00 (24/11/2026). Probado de punta
+  a punta en el celular de Ignacio; el primer aviso real es el 10/12/2026.
+  Falta que Florencia instale la app y active el aviso.
 
 ## Pendientes
 
 Ninguno bloqueante. Opcionales:
+
+- [ ] Que Florencia instale la app y active el aviso (sólo ella puede).
+- [ ] Idea 7 de la lista: mapa de lugares. Necesita su propio diseño.
 
 - [ ] Tildar "Return delete token" en el preset de Cloudinary. Daba el
       borrado de 10 minutos; ya no hace falta porque está el worker.
