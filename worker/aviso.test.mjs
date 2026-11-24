@@ -164,3 +164,72 @@ test("enviarAvisos sin suscriptores no hace nada", async () => {
     async () => { throw new Error("no debería llamar"); });
   assert.deepEqual(res, { enviados: 0, borrados: 0 });
 });
+
+/* ── service worker: el evento push ───────────────────────────────── */
+import vm from "node:vm";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const aca = dirname(fileURLToPath(import.meta.url));
+const raizSitio = join(aca, "..");
+
+/* corre sw.js en un contexto aislado con un self de mentira y devuelve
+   lo que se mostró cuando llega un push */
+async function pushEn({ indexedDB, ahora }) {
+  const oyentes = {};
+  const mostradas = [];
+  const FechaFija = class extends Date {
+    constructor(...a) { super(...(a.length ? a : [ahora])); }
+  };
+  const self_ = {
+    addEventListener: (tipo, fn) => { oyentes[tipo] = fn; },
+    registration: { showNotification: async (t, o) => { mostradas.push({ t, o }); } },
+    clients: { claim: async () => {}, matchAll: async () => [], openWindow: async () => {} },
+    skipWaiting: () => {},
+  };
+  const ctx = vm.createContext({
+    self: self_, Date: FechaFija, indexedDB, setTimeout, console,
+    importScripts: (f) => vm.runInContext(readFileSync(join(raizSitio, f), "utf8"), ctx),
+  });
+  vm.runInContext(readFileSync(join(raizSitio, "sw.js"), "utf8"), ctx);
+  assert.equal(typeof oyentes.push, "function", "sw.js tiene que escuchar 'push'");
+  let esperar = Promise.resolve();
+  oyentes.push({ waitUntil: (p) => { esperar = p; } });
+  await esperar;
+  return mostradas;
+}
+
+/* un indexedDB de mentira que devuelve `config` */
+const idbCon = (config) => ({
+  open: () => {
+    const q = { result: { transaction: () => ({ objectStore: () => ({ get: () => {
+      const g = { result: config }; setTimeout(() => g.onsuccess && g.onsuccess()); return g; } }) }),
+      close() {}, objectStoreNames: { contains: () => true } } };
+    setTimeout(() => q.onsuccess && q.onsuccess());
+    return q;
+  },
+});
+
+test("push con datos guardados muestra el aviso de esa persona", async () => {
+  const m = await pushEn({ indexedDB: idbCon(datos("Florencia")), ahora: "2026-12-10T10:00:00" });
+  assert.equal(m.length, 1);
+  assert.equal(m[0].t, "💗 +1 mes juntos");
+  assert.equal(m[0].o.body, "Hoy cumplimos 9 meses. Te amo con mi corazoncito.");
+});
+
+test("push sin IndexedDB muestra igual un aviso genérico", async () => {
+  const m = await pushEn({ indexedDB: undefined, ahora: "2026-12-10T10:00:00" });
+  assert.equal(m.length, 1);
+  assert.ok(m[0].t.length > 0 && m[0].o.body.length > 0);
+});
+
+test("push con IndexedDB vacío muestra igual un aviso genérico", async () => {
+  const m = await pushEn({ indexedDB: idbCon(undefined), ahora: "2026-12-10T10:00:00" });
+  assert.equal(m.length, 1);
+});
+
+test("push un día que no es 10 muestra la prueba", async () => {
+  const m = await pushEn({ indexedDB: idbCon(datos("Ignacio")), ahora: "2026-12-11T10:00:00" });
+  assert.equal(m[0].t, "Prueba del aviso del día 10");
+});
