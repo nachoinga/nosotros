@@ -1,0 +1,16 @@
+{
+  "name": "Nuestro 10 de marzo",
+  "short_name": "Nosotros",
+  "description": "Hice esta página para inmortalizar lo que siento por vos.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FFF7F9",
+  "theme_color": "#B02A5B",
+  "icons": [
+    { "src": "iconos/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "iconos/icono-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "iconos/icono-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
