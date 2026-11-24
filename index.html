@@ -283,6 +283,18 @@ const CONFIG = {
       primera: "Todavía nadie apretó. Estrenalo."
     },
 
+    // LA APP: para llevar la página en la pantalla de inicio del celular,
+    // con su ícono y sin la barra del navegador. En Android sale un botón;
+    // en iPhone no existe el botón, así que se explica el camino a mano.
+    app: {
+      rotulo: "En el celu",
+      titulo: "Llevala en el celu",
+      texto: "Instalada queda como una app más, con su ícono, y abre sin la barra del navegador.",
+      boton: "Instalar",
+      ios: "En iPhone: tocá el botón Compartir y después «Agregar a inicio».",
+      listo: "Ya la tenés instalada."
+    },
+
     // MENSAJES: para que ella también pueda escribir.
     // Necesita que el worker tenga almacenamiento (ver worker/LEEME.md).
     // Si no está, la sección no aparece y no pasa nada.
@@ -918,6 +930,10 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   font-size:1.35rem;line-height:1.35;color:var(--tinta);
   white-space:pre-wrap;overflow-wrap:break-word;
 }
+
+/* ═══ LA APP ══════════════════════════════════════════════════════ */
+.app-estado{display:flex;flex-direction:column;align-items:flex-start;gap:.9rem;max-width:34rem}
+.app-nota{font-size:.9375rem;color:var(--tinta-2)}
 
 /* ═══ ORNAMENTO ═══════════════════════════════════════════════════ */
 .ornamento{
@@ -1979,6 +1995,18 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       <p class="msj-aviso" id="msj-aviso" hidden></p>
     </div>
     <div class="msj-lista" id="msj-lista"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ LA APP ═══════════════════ -->
+<section class="franja" id="app" hidden>
+  <div class="envoltura">
+    <div class="cabecera-seccion">
+      <p class="rotulo" id="app-rotulo"></p>
+      <h2 class="titulo" id="app-titulo"></h2>
+      <p class="entrada" id="app-texto"></p>
+    </div>
+    <div class="app-estado" id="app-estado"></div>
   </div>
 </section>
 
@@ -3059,6 +3087,56 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
         .then((d) => { pintar(d.mensajes || []); $("#mensajes").hidden = false; })
         .catch((e) => console.warn("Mensajes desactivados:", e.message));
     }
+  }
+
+  /* ── la app: instalarla en la pantalla de inicio ─────────────── */
+  const enApp = window.matchMedia("(display-mode: standalone)").matches ||
+    navigator.standalone === true;
+  const esIPhone = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  {
+    const A = (CONFIG.nube || {}).app;
+    let oferta = null; /* el evento que Android deja para mostrar su cuadro de instalar */
+
+    /* el service worker no se puede registrar abriendo el archivo suelto */
+    if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+
+    const pintarApp = () => {
+      const caja = $("#app-estado");
+      let contenido = "";
+      if (!A || enApp) { $("#app").hidden = true; return; }
+      if (oferta) {
+        contenido = '<button type="button" class="extrano-boton" id="app-instalar">' +
+          esc(A.boton || "Instalar") + "</button>";
+      } else if (esIPhone) {
+        contenido = '<p class="app-nota">' + esc(A.ios || "") + "</p>";
+      }
+      $("#app").hidden = !contenido;
+      if (!contenido) return;
+      $("#app-rotulo").textContent = A.rotulo || "";
+      $("#app-titulo").textContent = A.titulo || "";
+      $("#app-texto").textContent = A.texto || "";
+      caja.innerHTML = contenido;
+      const b = $("#app-instalar");
+      if (b) b.addEventListener("click", async () => {
+        const e = oferta; oferta = null;
+        if (!e) return;
+        e.prompt();
+        try { await e.userChoice; } catch (err) {}
+        pintarApp();
+      });
+    };
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault(); oferta = e; pintarApp();
+    });
+    window.addEventListener("appinstalled", () => {
+      oferta = null;
+      if (A) { $("#app-estado").innerHTML = '<p class="app-nota">' + esc(A.listo || "") + "</p>"; }
+    });
+    pintarApp();
   }
 
   /* ── primavera ──────────────────────────────────────────────── */
