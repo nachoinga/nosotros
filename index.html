@@ -364,6 +364,11 @@ const CONFIG = {
     if (guardado && guardado.dia === diaHoy) activa = guardado.activa;
   } catch (e) {}
   if (activa) document.documentElement.classList.add("primavera");
+  /* claro u oscuro: si ya eligió con el botón, se respeta; si no, manda el celu */
+  try {
+    const tema = localStorage.getItem("tema");
+    if (tema === "light" || tema === "dark") document.documentElement.setAttribute("data-theme", tema);
+  } catch (e) {}
 })();
 </script>
 
@@ -570,7 +575,6 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
 /* el botón para alternar rosa / primavera */
 .barra-modo{
   display:inline-flex;align-items:center;gap:.45rem;
-  margin-left:auto;margin-right:1.25rem;
   padding:.35rem .85rem .4rem .7rem;
   border:1px solid var(--linea-fuerte);border-radius:100px;
   background:var(--surface);
@@ -579,11 +583,23 @@ section{padding-block:var(--aire);scroll-margin-top:5rem}
   white-space:nowrap;
   transition:background .18s, border-color .18s, transform .18s;
 }
+.barra-botones{display:flex;align-items:center;gap:.5rem;margin-left:auto;margin-right:1.25rem}
+/* el botón de claro / oscuro: sólo el ícono */
+.barra-tema{
+  flex:none;width:2.1rem;height:2.1rem;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--linea-fuerte);background:var(--surface);
+  color:var(--rosa-hondo);
+  transition:border-color .18s, transform .18s;
+}
+.barra-tema:hover{border-color:var(--rosa-claro);transform:translateY(-1px)}
 .barra-modo:hover{border-color:var(--rosa-claro);transform:translateY(-1px)}
 .barra-modo .solo-rosa{color:#E4B400}          /* la florcita, aunque estemos en rosa */
 .barra-modo .solo-primavera{color:#D6336C}     /* el corazón, aunque estemos en amarillo */
 @media (max-width:520px){
-  .barra-modo{margin-right:0;padding:.35rem .7rem .4rem .6rem;font-size:.6875rem}
+  .barra-botones{margin-right:0;gap:.4rem}
+  .barra-tema{width:2.4rem;height:2.4rem}
+  .barra-modo{padding:.35rem .7rem .4rem .6rem;font-size:.6875rem}
   .barra-modo span{display:none}                /* en el celu queda solo el ícono */
   .barra-modo{padding:.55rem .7rem;min-height:2.4rem}  /* cómodo para el pulgar */
   .barra-modo svg{width:15px;height:15px}
@@ -1725,11 +1741,17 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
       <span>10 de marzo</span>
       <b id="mini-contador">—</b>
     </div>
+    <div class="barra-botones">
     <button type="button" class="barra-modo" id="boton-modo" aria-pressed="false">
       <svg class="solo-rosa" width="13" height="13" fill="currentColor" aria-hidden="true"><use href="#flor-icono"/></svg>
       <svg class="solo-primavera" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-8.5-5.4-8.5-11A4.9 4.9 0 0 1 12 7a4.9 4.9 0 0 1 8.5 3c0 5.6-8.5 11-8.5 11z"/></svg>
       <span id="boton-modo-texto">Modo primavera</span>
     </button>
+    <button type="button" class="barra-tema" id="boton-tema" aria-pressed="false">
+      <svg id="tema-luna" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+      <svg id="tema-sol" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" hidden><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7"/></svg>
+    </button>
+    </div>
     <div class="barra-nav">
       <a href="#contador">El tiempo</a>
       <a href="#historia">Historia</a>
@@ -3430,6 +3452,34 @@ section,.heroe,footer,.ornamento{position:relative;z-index:1}
   };
 
   botonModo.addEventListener("click", () => aplicarModo(!PRIMAVERA));
+
+  /* ── claro ⇄ oscuro ───────────────────────────────────────────── */
+  /* Sin elegir nada manda el celular (data-theme sin poner). Al tocar el
+     botón se fija una de las dos y se recuerda en el teléfono, sin vencer. */
+  {
+    const raiz = document.documentElement, btn = $("#boton-tema");
+    const delSistema = window.matchMedia("(prefers-color-scheme: dark)");
+    const oscuro = () => {
+      const t = raiz.getAttribute("data-theme");
+      return t ? t === "dark" : delSistema.matches;
+    };
+    const pintarTema = () => {
+      const o = oscuro();
+      $("#tema-luna").hidden = o;
+      $("#tema-sol").hidden = !o;
+      btn.setAttribute("aria-pressed", String(o));
+      btn.setAttribute("aria-label", o ? "Pasar a modo claro" : "Pasar a modo oscuro");
+      btn.title = o ? "Modo claro" : "Modo oscuro";
+    };
+    btn.addEventListener("click", () => {
+      const nuevo = oscuro() ? "light" : "dark";
+      raiz.setAttribute("data-theme", nuevo);
+      try { localStorage.setItem("tema", nuevo); } catch (e) {}
+      pintarTema();
+    });
+    if (delSistema.addEventListener) delSistema.addEventListener("change", pintarTema);
+    pintarTema();
+  }
 
   iniciarJardin();
   if (PRIMAVERA) iniciarSeccion();

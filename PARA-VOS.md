@@ -162,6 +162,13 @@ Está en `"auto"`: hoy 21 de septiembre arranca en primavera, mañana arranca
 en rosa, y el 21 de septiembre del año que viene florece de nuevo sola. El
 botón de arriba queda siempre disponible para encenderla cualquier día.
 
+## Claro y oscuro
+
+Al lado del botón de primavera hay un botoncito redondo con una luna (o un
+sol, si está en oscuro). Con eso ella elige cómo verla y **queda recordado en
+su teléfono**, no vence. Si nunca lo toca, la página sigue el modo que tenga
+el celular. No hay nada que configurar en el `CONFIG`.
+
 ## Lo que ella puede hacer en la página
 
 - **Tocar una foto** y verla en grande, con el pie de foto. Se pasa de una a

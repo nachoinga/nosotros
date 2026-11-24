@@ -19,7 +19,7 @@ cortada), avisarle en una línea y dejar que decida.
 
 ## La regla que ordena todo el archivo
 
-`index.html` es **un solo archivo autocontenido**, ~2.300 líneas. Todo el
+`index.html` es **un solo archivo autocontenido**, ~3.800 líneas. Todo el
 contenido vive en el objeto `CONFIG` de arriba de todo, con comentarios en
 español. **Nada de contenido hardcodeado más abajo.** Si hay que agregar algo
 que él vaya a editar, va al `CONFIG`.
@@ -91,6 +91,13 @@ Todos los títulos y números se recalculan solos: la página no caduca.
 el 21 de septiembre), `true` o `false`. El botón de la barra alterna en vivo
 —colores, flores, sección, y hasta la canción— y lo que elija se guarda en
 `localStorage` **sólo por ese día**.
+
+**Claro / oscuro:** aparte de la primavera, la barra tiene un botón redondo
+(luna/sol). Sin tocarlo manda el celular (`prefers-color-scheme`); al tocarlo
+se pone `data-theme="light|dark"` en `<html>` y queda guardado en
+`localStorage["tema"]` **sin vencer** (a diferencia de la primavera). Se
+aplica en el mismo script previo al primer dibujado, para que no parpadee.
+Se combina con la primavera: hay cuatro paletas.
 
 En primavera suena `primaveraMusica` (Flores Amarillas) en vez de `musica`
 (Puesto), con su propia frase de portada. Todo cuelga de la clase `primavera`
