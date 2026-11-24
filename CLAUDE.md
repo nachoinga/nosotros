@@ -290,7 +290,9 @@ Terminada y funcionando. Lo hecho hasta el 01/10/2026:
 Ninguno bloqueante. Opcionales:
 
 - [ ] Que Florencia instale la app y active el aviso (sólo ella puede).
-- [ ] Idea 7 de la lista: mapa de lugares. Necesita su propio diseño.
+- Descartado el 24/11/2026: el mapa de lugares. Ignacio lo pensó y prefiere no
+  hacerlo, porque sólo fueron a Bariloche. No volver a proponerlo salvo que él
+  lo pida.
 
 - [ ] Tildar "Return delete token" en el preset de Cloudinary. Daba el
       borrado de 10 minutos; ya no hace falta porque está el worker.
